@@ -1,157 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#172554">
- <title>NIVORA ORDERS</title>)
-<style>
-:root{--navy:#172554;--blue:#2563eb;--bg:#f4f7fb;--ink:#172033;--muted:#64748b;--line:#e2e8f0;--green:#15803d}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
-header{background:linear-gradient(135deg,#172554,#1d4ed8);color:white;padding:24px 18px 28px}
-.wrap{max-width:760px;margin:auto}header .brand{font-size:13px;letter-spacing:2px;font-weight:800;opacity:.85}
-header h1{margin:8px 0 4px;font-size:29px}header p{margin:0;color:#dbeafe}
-main{padding:18px;max-width:760px;margin:auto}.tabs{display:flex;gap:8px;margin-bottom:16px}
-.tab{border:1px solid var(--line);background:white;border-radius:12px;padding:11px 14px;font-weight:700;color:var(--muted);flex:1}
-.tab.active{background:var(--navy);color:white;border-color:var(--navy)}
-.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 4px 18px #0f172a08}
-h2{font-size:19px;margin:0 0 5px}.hint{color:var(--muted);font-size:13px;margin:0 0 16px}
-label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}
-input,textarea,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:11px;font:inherit;background:white;color:var(--ink)}
-textarea{min-height:90px;resize:vertical}
-button{border:0;border-radius:12px;padding:13px 15px;font:700 15px system-ui;cursor:pointer}
-.primary{background:var(--blue);color:white;width:100%;margin-top:12px}
-.secondary{background:#eaf0ff;color:#1d4ed8}
-.record{background:#eff6ff;border:1px dashed #93c5fd;border-radius:15px;padding:16px;text-align:center}
-.mic{width:64px;height:64px;border-radius:50%;background:var(--blue);color:white;font-size:27px;display:block;margin:0 auto 10px}
-.mic.listening{background:#dc2626;animation:pulse 1.2s infinite}
-@keyframes pulse{50%{box-shadow:0 0 0 10px #fecaca}}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.total{font-size:22px;font-weight:800;color:var(--green)}
-.order{border:1px solid var(--line);border-radius:13px;padding:13px;margin-top:10px}
-.order-top{display:flex;justify-content:space-between;gap:8px;font-weight:800}
-.small{font-size:12px;color:var(--muted)}
-.actions{display:flex;gap:8px}.actions button{flex:1}
-.hidden{display:none!important}.empty{text-align:center;color:var(--muted);padding:24px}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28px}
-@media(max-width:480px){.row{grid-template-columns:1fr 1fr}header h1{font-size:25px}.panel{padding:15px}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NIVORA ORDERS</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f3f6fb;
+      color: #111827;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Login Screen */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+
+    .brand-badge {
+      display: inline-block;
+      background: #eef2ff;
+      color: #1d4ed8;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .login-card h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+    }
+
+    .login-card p {
+      margin: 0 0 20px;
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #fff;
+      color: #111827;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #1d4ed8;
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #1d4ed8;
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background: #0f766e;
+      color: #ffffff;
+    }
+
+    .btn-logout {
+      width: auto;
+      padding: 8px 14px;
+      font-size: 13px;
+      background: #fee2e2;
+      color: #b91c1c;
+      border-radius: 8px;
+    }
+
+    .error-text {
+      margin-top: 12px;
+      color: #b91c1c;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    /* Main App */
+    .topbar {
+      background: #1e3a8a;
+      color: #ffffff;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .topbar-sub {
+      font-size: 12px;
+      color: #dbeafe;
+      margin-top: 2px;
+      word-break: break-all;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 18px 16px 40px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 17px;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .order-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      background: #f9fafb;
+    }
+
+    .order-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .order-meta {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .muted {
+      color: #6b7280;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-<header><div class="wrap">
- <div class="brand">NIVORA ORDERS</div>
-<h1>Voice to Business</h1>
-<p>Speak an order. Review it. Save it.</p>
-</div></header>
-<main>
-<div class="tabs">
-<button class="tab active" id="newTab" onclick="showPage('new')">＋ New order</button>
-<button class="tab" id="historyTab" onclick="showPage('history')">▤ Previous orders</button>
-</div>
-<section id="newPage">
-<div class="panel">
-<h2>1. Record or type an order</h2>
-<p class="hint">తెలుగు లేదా Englishలో మాట్లాడండి. Speech recognition browser supportపై ఆధారపడి ఉంటుంది.</p>
-<div class="record">
-<button class="mic" id="micBtn" onclick="toggleRecording()" aria-label="Start recording">🎙</button>
-<strong id="micStatus">Tap to speak</strong>
-<p class="small" id="micHelp">Allow microphone access when your browser asks.</p>
-</div>
-<label for="spoken">Recognised words / Order details</label>
-<textarea id="spoken" placeholder="ఉదా: నాకు 5 టీ షర్ట్స్ కావాలి. 2 రెడ్, 3 వైట్. ఒక్కొక్కటి 250 రూపాయలు."></textarea>
-<button class="primary" onclick="makePreview()">Create order preview</button>
-</div>
-<div class="panel hidden" id="previewPanel">
-<h2>2. Check order details</h2>
-<p class="hint">సేవ్ చేసే ముందు ప్రతి వివరాన్ని సరిచూడండి. అర్థం కాని వివరాలు ఖాళీగా ఉండవచ్చు.</p>
-<label>Product</label><input id="product" placeholder="e.g. T-Shirt">
-<div class="row">
-<div><label>Quantity</label><input id="qty" type="number" min="0" inputmode="numeric"></div>
-<div><label>Price per item (₹)</label><input id="price" type="number" min="0" inputmode="decimal"></div>
-</div>
-<div class="row">
-<div><label>Colour / colour split</label><input id="colour" placeholder="2 Red, 3 White"></div>
-<div><label>Size (optional)</label><input id="size" placeholder="M, L, XL"></div>
-</div>
-<label>Delivery date / note</label><input id="delivery" placeholder="e.g. Tomorrow / 28 Nov">
-<p class="total" id="total">Total: ₹0</p>
-<div class="actions">
-<button class="secondary" onclick="makePreview()">Update preview</button>
-<button class="primary" style="margin-top:0" onclick="saveOrder()">Confirm & save</button>
-</div>
-<p class="small">The website does not send or commit an order to a customer. The shop owner must verify and confirm it.</p>
-</div>
-</section>
-<section id="historyPage" class="hidden">
-<div class="panel">
-<h2>Previous orders</h2>
-<p class="hint">Orders saved in this browser on this device.</p>
-<div id="ordersList"></div>
-</div>
-</section>
-</main>
-<footer>NIVORA ORDERS · Data stays in this browser on this device.</footer>
-<script>
-let recognition=null, listening=false;
-const $=id=>document.getElementById(id);
-function showPage(page){
- $('newPage').classList.toggle('hidden',page!=='new');
- $('historyPage').classList.toggle('hidden',page!=='history');
- $('newTab').classList.toggle('active',page==='new');
- $('historyTab').classList.toggle('active',page==='history');
- if(page==='history') renderOrders();
-}
-function toggleRecording(){
- const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
- if(!SR){$('micStatus').textContent='Speech recognition not available';
- $('micHelp').textContent='Try Chrome on Android, or type the order in the box.';return;}
- if(listening){recognition.stop();return;}
- recognition=new SR();recognition.lang='te-IN';recognition.continuous=true;recognition.interimResults=true;
- recognition.onstart=()=>{listening=true;$('micBtn').classList.add('listening');$('micStatus').textContent='Listening…';};
- recognition.onresult=e=>{let text='';for(let i=0;i<e.results.length;i++)text+=e.results[i][0].transcript+' ';$('spoken').value=text.trim();};
- recognition.onerror=e=>{$('micStatus').textContent='Mic issue: '+e.error+' — you can type instead.';};
- recognition.onend=()=>{listening=false;$('micBtn').classList.remove('listening');$('micStatus').textContent='Recording stopped';};
- recognition.start();
-}
-function numberNear(text,patterns){
- for(const re of patterns){const m=text.match(re);if(m){const n=Number(m[1]);if(Number.isFinite(n))return n;}}
- return '';
-}
-function makePreview(){
- const t=$('spoken').value.trim();if(!t){alert('ముందుగా మాట్లాడండి లేదా order details type చేయండి.');return;}
- // Lightweight demo parser: user must verify every extracted field.
- let q=numberNear(t,[/(?:qty|quantity)\s*[:=]?\s*(\d+)/i,/(\d+)\s*(?:shirts?|t[\s-]?shirts?|jeans?|పీసులు|షర్ట్స్?)/i,/(\d+)\s*(?:కావాలి|మాత్రం)/]);
- let p=numberNear(t,[/₹\s*(\d+(?:\.\d+)?)/,/(\d+(?:\.\d+)?)\s*(?:rupees?|rs\.?|రూపాయలు)/i,/ ఒక్కొక్కటి\s*(\d+)/]);
- let product='';const low=t.toLowerCase();
- if(/t[\s-]?shirts?|టీ\s?షర్ట్స్?|షర్ట్స్?/i.test(t))product='T-Shirt';
- else if(/jeans?|జీన్స్/i.test(t))product='Jeans';
- else if(/shirts?|షర్టు/i.test(t))product='Shirt';
- else if(/dress|డ్రెస్/i.test(t))product='Dress';
- $('product').value=product;$('qty').value=q;$('price').value=p;
- $('colour').value='';
- const colours=[];for(const c of ['red','రెడ్','blue','బ్లూ','black','బ్లాక్','white','వైట్','green','గ్రీన్'])if(low.includes(c))colours.push(c);
- $('colour').value=colours.join(', ');
- $('size').value='';$('delivery').value='';
- $('previewPanel').classList.remove('hidden');updateTotal();
- $('previewPanel').scrollIntoView({behavior:'smooth',block:'start'});
-}
-function updateTotal(){const q=Number($('qty').value)||0,p=Number($('price').value)||0;$('total').textContent='Total: ₹'+(q*p).toLocaleString('en-IN');}
-['qty','price'].forEach(id=>$(id).addEventListener('input',updateTotal));
-function saveOrder(){
- const product=$('product').value.trim(),qty=Number($('qty').value),price=Number($('price').value);
- if(!product||!qty||!price){alert('Product, quantity and price are required. Please check them.');return;}
- const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
- orders.unshift({id:'VO-'+Date.now().toString().slice(-7),date:new Date().toLocaleString(),product,qty,price,colour:$('colour').value,size:$('size').value,delivery:$('delivery').value,total:qty*price});
- localStorage.setItem('vaaniOrders',JSON.stringify(orders));
- $('spoken').value='';$('previewPanel').classList.add('hidden');
- alert('Order saved on this device.');showPage('history');
-}
-function renderOrders(){
- const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]'),el=$('ordersList');
- if(!orders.length){el.innerHTML='<div class="empty">No saved orders yet.<br>New orders will appear here.</div>';return;}
- el.innerHTML=orders.map(o=>`<div class="order"><div class="order-top"><span>${escapeHTML(o.product)} × ${o.qty}</span><span>₹${o.total.toLocaleString('en-IN')}</span></div><div>${escapeHTML(o.colour||'Colour not entered')} ${o.size?' · Size '+escapeHTML(o.size):''}</div><div class="small">${escapeHTML(o.id)} · ${escapeHTML(o.date)}</div><div class="small">${o.delivery?'Delivery: '+escapeHTML(o.delivery):'Delivery date not entered'} · ₹${o.price} each</div></div>`).join('');
-}
-function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-</script>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen" class="login-wrapper">
+    <div class="login-card">
+      <div class="brand-badge">AUTHORIZED SHOP ACCESS</div>
+      <h1>NIVORA ORDERS</h1>
+      <p>Sign in with your approved shop owner account to access orders.</p>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email</label>
+          <input id="login-email" type="email" placeholder="owner@shop.com" required autocomplete="email" />
+        </div>
+
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input id="login-password" type="password" placeholder="Enter password" required autocomplete="current-password" />
+        </div>
+
+        <button id="login-btn" type="submit" class="btn btn-primary">Log In</button>
+        <div id="login-error" class="error-text hidden"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- PROTECTED APP SCREEN -->
+  <div id="app-screen" class="hidden">
+    <header class="topbar">
+      <div>
+        <h1 class="topbar-title">NIVORA ORDERS</h1>
+        <div id="user-email-display" class="topbar-sub"></div>
+      </div>
+      <button id="logout-btn" type="button" class="btn btn-logout">Log Out</button>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <h2>Quick Order Entry</h2>
+        <form id="order-form">
+          <div class="form-group">
+            <label for="customer-name">Customer / WhatsApp Reference</label>
+            <input id="customer-name" type="text" placeholder="e.g., Ramesh / WhatsApp Voice" required />
+          </div>
+
+          <div class="row-2">
+            <div class="form-group">
+              <label for="order-qty">Quantity</label>
+              <input id="order-qty" type="number" min="1" value="1" required />
+            </div>
+            <div class="form-group">
+              <label for="order-rate">Rate per Item (₹)</label>
+              <input id="order-rate" type="number" min="0" step="0.01" placeholder="0" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="order-notes">Items / Voice Notes</label>
+            <textarea id="order-notes" rows="3" placeholder="Speak or paste customer order details..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-secondary">Save Order</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Saved Orders</h2>
+        <div id="orders-list" class="muted">No orders saved yet.</div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD553vHEjV6-Owme9jzHbNTUV9hY1j2vpI",
+      authDomain: "nivora-orders.firebaseapp.com",
+      projectId: "nivora-orders",
+      storageBucket: "nivora-orders.firebasestorage.app",
+      messagingSenderId: "580605150647",
+      appId: "1:580605150647:web:3d81e1c59f956059c0d432",
+      measurementId: "G-62QRTCNV1B"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try {
+      getAnalytics(app);
+    } catch (_) {
+      // Ignore analytics errors in restricted browsers
+    }
+
+    const auth = getAuth(app);
+
+    const loginScreen = document.getElementById("login-screen");
+    const appScreen = document.getElementById("app-screen");
+    const loginForm = document.getElementById("login-form");
+    const loginEmail = document.getElementById("login-email");
+    const loginPassword = document.getElementById("login-password");
+    const loginBtn = document.getElementById("login-btn");
+    const loginError = document.getElementById("login-error");
+    const userEmailDisplay = document.getElementById("user-email-display");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    const orderForm = document.getElementById("order-form");
+    const customerName = document.getElementById("customer-name");
+    const orderQty = document.getElementById("order-qty");
+    const orderRate = document.getElementById("order-rate");
+    const orderNotes = document.getElementById("order-notes");
+    const ordersList = document.getElementById("orders-list");
+
+    function showError(message) {
+      loginError.textContent = message;
+      loginError.classList.remove("hidden");
+    }
+
+    function clearError() {
+      loginError.textContent = "";
+      loginError.classList.add("hidden");
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function getOrdersKey(uid) {
+      return `nivora_orders_${uid}`;
+    }
+
+    function renderOrders(uid) {
+      const raw = localStorage.getItem(getOrdersKey(uid));
+      const orders = raw ? JSON.parse(raw) : [];
+
+      if (!orders.length) {
+        ordersList.innerHTML = '<div class="muted">No orders saved yet.</div>';
+        return;
+      }
+
+      ordersList.innerHTML = orders
+        .map((order) => {
+          const total = (Number(order.qty) * Number(order.rate)).toFixed(2);
+          return `
+            <div class="order-item">
+              <div class="order-top">
+                <span>${escapeHtml(order.customer)}</span>
+                <span>₹${total}</span>
+              </div>
+              <div>${escapeHtml(order.notes)}</div>
+              <div class="order-meta">Qty: ${order.qty} × ₹${Number(order.rate).toFixed(2)} • ${escapeHtml(order.time)}</div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        clearError();
+        loginScreen.classList.add("hidden");
+        appScreen.classList.remove("hidden");
+        userEmailDisplay.textContent = user.email || "Authorized Shop Owner";
+        renderOrders(user.uid);
+      } else {
+        appScreen.classList.add("hidden");
+        loginScreen.classList.remove("hidden");
+        ordersList.innerHTML = '<div class="muted">No orders saved yet.</div>';
+      }
+    });
+
+    loginForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearError();
+
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value;
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Signing in...";
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        loginForm.reset();
+      } catch (err) {
+        if (
+          err.code === "auth/invalid-credential" ||
+          err.code === "auth/user-not-found" ||
+          err.code === "auth/wrong-password"
+        ) {
+          showError("Invalid email or password. Only approved shop accounts can log in.");
+        } else if (err.code === "auth/too-many-requests") {
+          showError("Too many failed attempts. Please wait a moment and try again.");
+        } else {
+          showError("Login failed. Please check your connection and credentials.");
+        }
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Log In";
+      }
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+      } catch (_) {
+        alert("Could not log out. Please try again.");
+      }
+    });
+
+    orderForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const currentUser = auth.currentUser;
+      if (!currentUser) return;
+
+      const qty = Number(orderQty.value);
+      const rate = Number(orderRate.value);
+      const newOrder = {
+        customer: customerName.value.trim(),
+        qty,
+        rate,
+        notes: orderNotes.value.trim(),
+        time: new Date().toLocaleString()
+      };
+
+      const key = getOrdersKey(currentUser.uid);
+      const existing = JSON.parse(localStorage.getItem(key) || "[]");
+      existing.unshift(newOrder);
+      localStorage.setItem(key, JSON.stringify(existing));
+
+      orderForm.reset();
+      orderQty.value = "1";
+      renderOrders(currentUser.uid);
+    });
+  </script>
 </body>
 </html>
