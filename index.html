@@ -103,7 +103,7 @@
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.15s ease;
+      transition: opacity 0.15s ease, background-color 0.15s ease;
     }
 
     .btn:disabled {
@@ -128,6 +128,58 @@
       background: #fee2e2;
       color: #b91c1c;
       border-radius: 8px;
+    }
+
+    .notes-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .notes-header label {
+      margin-bottom: 0;
+    }
+
+    .voice-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lang-select {
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #f8fafc;
+      color: #111827;
+    }
+
+    .btn-voice {
+      width: auto;
+      padding: 7px 12px;
+      font-size: 12px;
+      background: #eef2ff;
+      color: #1d4ed8;
+      border: 1px solid #c7d2fe;
+      border-radius: 8px;
+    }
+
+    .btn-voice.listening {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #dc2626;
+    }
+
+    .voice-status {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #4b5563;
+      min-height: 16px;
     }
 
     .error-text {
@@ -277,8 +329,23 @@
           </div>
 
           <div class="form-group">
-            <label for="order-notes">Items / Voice Notes</label>
-            <textarea id="order-notes" rows="3" placeholder="Speak or paste customer order details..." required></textarea>
+            <div class="notes-header">
+              <label for="order-notes">Items / Voice Notes</label>
+              <div class="voice-controls">
+                <select id="voice-lang" class="lang-select" aria-label="Voice Language">
+                  <option value="te-IN" selected>Telugu (te-IN)</option>
+                  <option value="en-IN">English (en-IN)</option>
+                </select>
+                <button id="voice-btn" type="button" class="btn btn-voice">🎙️ Tap to Speak</button>
+              </div>
+            </div>
+            <textarea
+              id="order-notes"
+              rows="3"
+              placeholder="Tap to Speak, use keyboard mic, or paste customer order details..."
+              required
+            ></textarea>
+            <div id="voice-status" class="voice-status"></div>
           </div>
 
           <button type="submit" class="btn btn-secondary">Save Order</button>
@@ -338,6 +405,10 @@
     const orderNotes = document.getElementById("order-notes");
     const ordersList = document.getElementById("orders-list");
 
+    const voiceBtn = document.getElementById("voice-btn");
+    const voiceLang = document.getElementById("voice-lang");
+    const voiceStatus = document.getElementById("voice-status");
+
     function showError(message) {
       loginError.textContent = message;
       loginError.classList.remove("hidden");
@@ -384,6 +455,97 @@
         .join("");
     }
 
+    // Speech Recognition setup (Tap to Speak + Keyboard Mic compatible)
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    let isListening = false;
+
+    function setVoiceUi(listening, statusText = "") {
+      isListening = listening;
+      voiceBtn.classList.toggle("listening", listening);
+      voiceBtn.textContent = listening ? "⏹️ Stop" : "🎙️ Tap to Speak";
+      voiceStatus.textContent = statusText;
+    }
+
+    function appendTranscript(transcript) {
+      const cleaned = transcript.trim();
+      if (!cleaned) return;
+      const current = orderNotes.value;
+      const needsSpace = current.length > 0 && !/\s$/.test(current);
+      orderNotes.value = current + (needsSpace ? " " : "") + cleaned;
+      orderNotes.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = () => {
+        setVoiceUi(true, "Listening... speak your order now.");
+      };
+
+      recognition.onresult = (event) => {
+        let finalText = "";
+        let interimText = "";
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const piece = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalText += piece;
+          } else {
+            interimText += piece;
+          }
+        }
+
+        if (finalText) {
+          appendTranscript(finalText);
+          voiceStatus.textContent = "Captured voice note.";
+        } else if (interimText) {
+          voiceStatus.textContent = `Hearing: "${interimText}"`;
+        }
+      };
+
+      recognition.onerror = (event) => {
+        let msg = "Voice capture issue. You can also use your keyboard mic.";
+        if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+          msg = "Microphone permission blocked in browser. Allow mic permission or use keyboard mic.";
+        } else if (event.error === "no-speech") {
+          msg = "No speech detected. Tap to Speak again or use keyboard mic.";
+        } else if (event.error === "network") {
+          msg = "Network error during speech recognition. Check connection or use keyboard mic.";
+        }
+        setVoiceUi(false, msg);
+      };
+
+      recognition.onend = () => {
+        if (isListening) {
+          setVoiceUi(false, "Stopped listening.");
+        }
+      };
+
+      voiceBtn.addEventListener("click", () => {
+        if (!recognition) return;
+        if (isListening) {
+          recognition.stop();
+          setVoiceUi(false, "Stopped listening.");
+        } else {
+          try {
+            recognition.lang = voiceLang.value;
+            recognition.start();
+          } catch (_) {
+            setVoiceUi(false, "Could not start mic. Tap again or use keyboard mic.");
+          }
+        }
+      });
+    } else {
+      voiceBtn.addEventListener("click", () => {
+        orderNotes.focus();
+        voiceStatus.textContent = "Browser speech button not supported here — tap the mic on your phone keyboard.";
+      });
+    }
+
     onAuthStateChanged(auth, (user) => {
       if (user) {
         clearError();
@@ -392,6 +554,10 @@
         userEmailDisplay.textContent = user.email || "Authorized Shop Owner";
         renderOrders(user.uid);
       } else {
+        if (recognition && isListening) {
+          recognition.stop();
+          setVoiceUi(false, "");
+        }
         appScreen.classList.add("hidden");
         loginScreen.classList.remove("hidden");
         ordersList.innerHTML = '<div class="muted">No orders saved yet.</div>';
@@ -459,6 +625,7 @@
 
       orderForm.reset();
       orderQty.value = "1";
+      voiceStatus.textContent = "";
       renderOrders(currentUser.uid);
     });
   </script>
