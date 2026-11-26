@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#172554">
+<title>VaaniOrder — Voice to Business</title>
+<style>
+:root{--navy:#172554;--blue:#2563eb;--bg:#f4f7fb;--ink:#172033;--muted:#64748b;--line:#e2e8f0;--green:#15803d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(135deg,#172554,#1d4ed8);color:white;padding:24px 18px 28px}
+.wrap{max-width:760px;margin:auto}header .brand{font-size:13px;letter-spacing:2px;font-weight:800;opacity:.85}
+header h1{margin:8px 0 4px;font-size:29px}header p{margin:0;color:#dbeafe}
+main{padding:18px;max-width:760px;margin:auto}.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{border:1px solid var(--line);background:white;border-radius:12px;padding:11px 14px;font-weight:700;color:var(--muted);flex:1}
+.tab.active{background:var(--navy);color:white;border-color:var(--navy)}
+.panel{background:white;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 4px 18px #0f172a08}
+h2{font-size:19px;margin:0 0 5px}.hint{color:var(--muted);font-size:13px;margin:0 0 16px}
+label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px}
+input,textarea,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:11px;font:inherit;background:white;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}
+button{border:0;border-radius:12px;padding:13px 15px;font:700 15px system-ui;cursor:pointer}
+.primary{background:var(--blue);color:white;width:100%;margin-top:12px}
+.secondary{background:#eaf0ff;color:#1d4ed8}
+.record{background:#eff6ff;border:1px dashed #93c5fd;border-radius:15px;padding:16px;text-align:center}
+.mic{width:64px;height:64px;border-radius:50%;background:var(--blue);color:white;font-size:27px;display:block;margin:0 auto 10px}
+.mic.listening{background:#dc2626;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 10px #fecaca}}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.total{font-size:22px;font-weight:800;color:var(--green)}
+.order{border:1px solid var(--line);border-radius:13px;padding:13px;margin-top:10px}
+.order-top{display:flex;justify-content:space-between;gap:8px;font-weight:800}
+.small{font-size:12px;color:var(--muted)}
+.actions{display:flex;gap:8px}.actions button{flex:1}
+.hidden{display:none!important}.empty{text-align:center;color:var(--muted);padding:24px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28px}
+@media(max-width:480px){.row{grid-template-columns:1fr 1fr}header h1{font-size:25px}.panel{padding:15px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="brand">VAANIORDER</div>
+<h1>Voice to Business</h1>
+<p>Speak an order. Review it. Save it.</p>
+</div></header>
+<main>
+<div class="tabs">
+<button class="tab active" id="newTab" onclick="showPage('new')">＋ New order</button>
+<button class="tab" id="historyTab" onclick="showPage('history')">▤ Previous orders</button>
+</div>
+<section id="newPage">
+<div class="panel">
+<h2>1. Record or type an order</h2>
+<p class="hint">తెలుగు లేదా Englishలో మాట్లాడండి. Speech recognition browser supportపై ఆధారపడి ఉంటుంది.</p>
+<div class="record">
+<button class="mic" id="micBtn" onclick="toggleRecording()" aria-label="Start recording">🎙</button>
+<strong id="micStatus">Tap to speak</strong>
+<p class="small" id="micHelp">Allow microphone access when your browser asks.</p>
+</div>
+<label for="spoken">Recognised words / Order details</label>
+<textarea id="spoken" placeholder="ఉదా: నాకు 5 టీ షర్ట్స్ కావాలి. 2 రెడ్, 3 వైట్. ఒక్కొక్కటి 250 రూపాయలు."></textarea>
+<button class="primary" onclick="makePreview()">Create order preview</button>
+</div>
+<div class="panel hidden" id="previewPanel">
+<h2>2. Check order details</h2>
+<p class="hint">సేవ్ చేసే ముందు ప్రతి వివరాన్ని సరిచూడండి. అర్థం కాని వివరాలు ఖాళీగా ఉండవచ్చు.</p>
+<label>Product</label><input id="product" placeholder="e.g. T-Shirt">
+<div class="row">
+<div><label>Quantity</label><input id="qty" type="number" min="0" inputmode="numeric"></div>
+<div><label>Price per item (₹)</label><input id="price" type="number" min="0" inputmode="decimal"></div>
+</div>
+<div class="row">
+<div><label>Colour / colour split</label><input id="colour" placeholder="2 Red, 3 White"></div>
+<div><label>Size (optional)</label><input id="size" placeholder="M, L, XL"></div>
+</div>
+<label>Delivery date / note</label><input id="delivery" placeholder="e.g. Tomorrow / 28 Nov">
+<p class="total" id="total">Total: ₹0</p>
+<div class="actions">
+<button class="secondary" onclick="makePreview()">Update preview</button>
+<button class="primary" style="margin-top:0" onclick="saveOrder()">Confirm & save</button>
+</div>
+<p class="small">The website does not send or commit an order to a customer. The shop owner must verify and confirm it.</p>
+</div>
+</section>
+<section id="historyPage" class="hidden">
+<div class="panel">
+<h2>Previous orders</h2>
+<p class="hint">Orders saved in this browser on this device.</p>
+<div id="ordersList"></div>
+</div>
+</section>
+</main>
+<footer>VaaniOrder demo · Data stays in this browser on this device. Export or cloud backup is not included in this first version.</footer>
+<script>
+let recognition=null, listening=false;
+const $=id=>document.getElementById(id);
+function showPage(page){
+ $('newPage').classList.toggle('hidden',page!=='new');
+ $('historyPage').classList.toggle('hidden',page!=='history');
+ $('newTab').classList.toggle('active',page==='new');
+ $('historyTab').classList.toggle('active',page==='history');
+ if(page==='history') renderOrders();
+}
+function toggleRecording(){
+ const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+ if(!SR){$('micStatus').textContent='Speech recognition not available';
+ $('micHelp').textContent='Try Chrome on Android, or type the order in the box.';return;}
+ if(listening){recognition.stop();return;}
+ recognition=new SR();recognition.lang='te-IN';recognition.continuous=true;recognition.interimResults=true;
+ recognition.onstart=()=>{listening=true;$('micBtn').classList.add('listening');$('micStatus').textContent='Listening…';};
+ recognition.onresult=e=>{let text='';for(let i=0;i<e.results.length;i++)text+=e.results[i][0].transcript+' ';$('spoken').value=text.trim();};
+ recognition.onerror=e=>{$('micStatus').textContent='Mic issue: '+e.error+' — you can type instead.';};
+ recognition.onend=()=>{listening=false;$('micBtn').classList.remove('listening');$('micStatus').textContent='Recording stopped';};
+ recognition.start();
+}
+function numberNear(text,patterns){
+ for(const re of patterns){const m=text.match(re);if(m){const n=Number(m[1]);if(Number.isFinite(n))return n;}}
+ return '';
+}
+function makePreview(){
+ const t=$('spoken').value.trim();if(!t){alert('ముందుగా మాట్లాడండి లేదా order details type చేయండి.');return;}
+ // Lightweight demo parser: user must verify every extracted field.
+ let q=numberNear(t,[/(?:qty|quantity)\s*[:=]?\s*(\d+)/i,/(\d+)\s*(?:shirts?|t[\s-]?shirts?|jeans?|పీసులు|షర్ట్స్?)/i,/(\d+)\s*(?:కావాలి|మాత్రం)/]);
+ let p=numberNear(t,[/₹\s*(\d+(?:\.\d+)?)/,/(\d+(?:\.\d+)?)\s*(?:rupees?|rs\.?|రూపాయలు)/i,/ ఒక్కొక్కటి\s*(\d+)/]);
+ let product='';const low=t.toLowerCase();
+ if(/t[\s-]?shirts?|టీ\s?షర్ట్స్?|షర్ట్స్?/i.test(t))product='T-Shirt';
+ else if(/jeans?|జీన్స్/i.test(t))product='Jeans';
+ else if(/shirts?|షర్టు/i.test(t))product='Shirt';
+ else if(/dress|డ్రెస్/i.test(t))product='Dress';
+ $('product').value=product;$('qty').value=q;$('price').value=p;
+ $('colour').value='';
+ const colours=[];for(const c of ['red','రెడ్','blue','బ్లూ','black','బ్లాక్','white','వైట్','green','గ్రీన్'])if(low.includes(c))colours.push(c);
+ $('colour').value=colours.join(', ');
+ $('size').value='';$('delivery').value='';
+ $('previewPanel').classList.remove('hidden');updateTotal();
+ $('previewPanel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function updateTotal(){const q=Number($('qty').value)||0,p=Number($('price').value)||0;$('total').textContent='Total: ₹'+(q*p).toLocaleString('en-IN');}
+['qty','price'].forEach(id=>$(id).addEventListener('input',updateTotal));
+function saveOrder(){
+ const product=$('product').value.trim(),qty=Number($('qty').value),price=Number($('price').value);
+ if(!product||!qty||!price){alert('Product, quantity and price are required. Please check them.');return;}
+ const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
+ orders.unshift({id:'VO-'+Date.now().toString().slice(-7),date:new Date().toLocaleString(),product,qty,price,colour:$('colour').value,size:$('size').value,delivery:$('delivery').value,total:qty*price});
+ localStorage.setItem('vaaniOrders',JSON.stringify(orders));
+ $('spoken').value='';$('previewPanel').classList.add('hidden');
+ alert('Order saved on this device.');showPage('history');
+}
+function renderOrders(){
+ const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]'),el=$('ordersList');
+ if(!orders.length){el.innerHTML='<div class="empty">No saved orders yet.<br>New orders will appear here.</div>';return;}
+ el.innerHTML=orders.map(o=>`<div class="order"><div class="order-top"><span>${escapeHTML(o.product)} × ${o.qty}</span><span>₹${o.total.toLocaleString('en-IN')}</span></div><div>${escapeHTML(o.colour||'Colour not entered')} ${o.size?' · Size '+escapeHTML(o.size):''}</div><div class="small">${escapeHTML(o.id)} · ${escapeHTML(o.date)}</div><div class="small">${o.delivery?'Delivery: '+escapeHTML(o.delivery):'Delivery date not entered'} · ₹${o.price} each</div></div>`).join('');
+}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+</script>
+</body>
+</html>
