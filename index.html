@@ -25,6 +25,8 @@ textarea{min-height:90px;resize:vertical}
 button{border:0;border-radius:12px;padding:13px 15px;font:700 15px system-ui;cursor:pointer}
 .primary{background:var(--blue);color:white;width:100%;margin-top:12px}
 .secondary{background:#eaf0ff;color:#1d4ed8}
+.edit-btn{background:#eaf0ff;color:#1d4ed8;padding:7px 12px;border-radius:9px;font-size:13px;font-weight:700}
+.cancel-btn{background:#f1f5f9;color:#334155}
 .record{background:#eff6ff;border:1px dashed #93c5fd;border-radius:15px;padding:16px;text-align:center}
 .mic{width:64px;height:64px;border-radius:50%;background:var(--blue);color:white;font-size:27px;display:block;margin:0 auto 10px}
 .mic.listening{background:#dc2626;animation:pulse 1.2s infinite}
@@ -32,9 +34,11 @@ button{border:0;border-radius:12px;padding:13px 15px;font:700 15px system-ui;cur
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .total{font-size:22px;font-weight:800;color:var(--green)}
 .order{border:1px solid var(--line);border-radius:13px;padding:13px;margin-top:10px}
-.order-top{display:flex;justify-content:space-between;gap:8px;font-weight:800}
+.order-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:800}
+.order-right{display:flex;align-items:center;gap:8px}
+.edit-box{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
 .small{font-size:12px;color:var(--muted)}
-.actions{display:flex;gap:8px}.actions button{flex:1}
+.actions{display:flex;gap:8px;margin-top:12px}.actions button{flex:1}
 .hidden{display:none!important}.empty{text-align:center;color:var(--muted);padding:24px}
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
 .login-box{width:100%;max-width:420px;background:white;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 4px 18px #0f172a08}
@@ -123,14 +127,14 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28p
 </div>
 
 <script>
-let recognition=null, listening=false;
+let recognition=null, listening=false, editingOrderId=null;
 const $=id=>document.getElementById(id);
 function showPage(page){
  $('newPage').classList.toggle('hidden',page!=='new');
  $('historyPage').classList.toggle('hidden',page!=='history');
  $('newTab').classList.toggle('active',page==='new');
  $('historyTab').classList.toggle('active',page==='history');
- if(page==='history') renderOrders();
+ if(page==='history'){editingOrderId=null;renderOrders();}
 }
 function toggleRecording(){
  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -185,14 +189,12 @@ function makePreview(){
  const raw=$('spoken').value.trim();if(!raw){alert('ముందుగా మాట్లాడండి లేదా order details type చేయండి.');return;}
  const t=normalizeSpokenNumbers(raw);
 
- // 1. Price per item extraction first so price numbers aren't mistaken for quantity
  let p=numberNear(t,[
    /₹\s*(\d+(?:\.\d+)?)/,
    /(?:ఒక్కొక్కటి|ఒక్కోటి|ప్రతి\s*ఒక్కటి|each|per\s*piece|rate|price|ధర|రేటు)\s*[:=-]?\s*(\d+(?:\.\d+)?)/i,
    /(\d+(?:\.\d+)?)\s*(?:rupees?|rs\.?|రూపాయలు|రూపాయల|రూ\.?|each|per\s*piece)/i
  ]);
 
- // 2. Quantity extraction
  let q=numberNear(t,[
    /(?:qty|quantity|క్వాంటిటీ)\s*[:=]?\s*(\d+)/i,
    /(\d+)\s*(?:t[\s-]?shirts?|shirts?|jeans?|dresses?|sarees?|pants?|trousers?|pieces?|pcs|పీసులు|పీస్|టీ\s?షర్ట్స్?|షర్ట్స్?|షర్టులు|జీన్స్|డ్రెస్సులు|చీరలు|ప్యాంట్లు)/i,
@@ -209,7 +211,6 @@ function makePreview(){
    if(small) q=small;
  }
 
- // 3. Product extraction
  let product='';
  if(/t[\s-]?shirts?|టీ\s?షర్ట్స్?|టీ\s?షర్టు|టీషర్ట్/i.test(t))product='T-Shirt';
  else if(/jeans?|జీన్స్/i.test(t))product='Jeans';
@@ -219,7 +220,6 @@ function makePreview(){
  else if(/pant|trouser|ప్యాంట్|ప్యాంట్లు/i.test(t))product='Pant';
  else if(/kurti|కుర్తీ/i.test(t))product='Kurti';
 
- // 4. Colours (captures counts with colour if spoken, e.g. "2 red, 3 white")
  const colourPairs=[];
  const colourMap=[
    ['Red',/(?:(\d+)\s*)?(?:red|రెడ్|ఎరుపు)/i],
@@ -234,14 +234,12 @@ function makePreview(){
    if(m) colourPairs.push(m[1] ? `${m[1]} ${label}` : label);
  }
 
- // 5. Size extraction
  let size='';
  const sizeMatch=raw.match(/(?:size|సైజ్|సైజు)\s*[:=-]?\s*(xs|s|m|l|xl|xxl|xxxl|\d{2})\b/i)
    || raw.match(/\b(xs|xxl|xxxl|xl)\b/i)
    || raw.match(/\b([sml])\s*(?:size|సైజ్|సైజు)\b/i);
  if(sizeMatch) size=sizeMatch[1].toUpperCase();
 
- // 6. Delivery date / note extraction
  let delivery='';
  const delMatch=raw.match(/(?:delivery|డెలివరీ|కావాల్సిన\s*రోజు)\s*[:=-]?\s*([^\n,.]+)/i);
  if(delMatch){
@@ -278,10 +276,75 @@ function saveOrder(){
  $('spoken').value='';$('previewPanel').classList.add('hidden');
  alert('Order saved on this device.');showPage('history');
 }
+function startEditOrder(id){
+ editingOrderId=id;
+ renderOrders();
+}
+function cancelEditOrder(){
+ editingOrderId=null;
+ renderOrders();
+}
+function saveEditedOrder(id){
+ const product=$('edit-product-'+id).value.trim();
+ const qty=Number($('edit-qty-'+id).value);
+ const price=Number($('edit-price-'+id).value);
+ if(!product||!qty||!price){alert('Product, quantity and price are required. Please check them.');return;}
+ const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
+ const idx=orders.findIndex(o=>o.id===id);
+ if(idx===-1)return;
+ orders[idx]={
+   ...orders[idx],
+   product,
+   qty,
+   price,
+   colour:$('edit-colour-'+id).value.trim(),
+   size:$('edit-size-'+id).value.trim(),
+   delivery:$('edit-delivery-'+id).value.trim(),
+   total:qty*price
+ };
+ localStorage.setItem('vaaniOrders',JSON.stringify(orders));
+ editingOrderId=null;
+ renderOrders();
+}
 function renderOrders(){
  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]'),el=$('ordersList');
  if(!orders.length){el.innerHTML='<div class="empty">No saved orders yet.<br>New orders will appear here.</div>';return;}
- el.innerHTML=orders.map(o=>`<div class="order"><div class="order-top"><span>${escapeHTML(o.product)} × ${o.qty}</span><span>₹${o.total.toLocaleString('en-IN')}</span></div><div>${escapeHTML(o.colour||'Colour not entered')} ${o.size?' · Size '+escapeHTML(o.size):''}</div><div class="small">${escapeHTML(o.id)} · ${escapeHTML(o.date)}</div><div class="small">${o.delivery?'Delivery: '+escapeHTML(o.delivery):'Delivery date not entered'} · ₹${o.price} each</div></div>`).join('');
+ el.innerHTML=orders.map(o=>{
+   const isEditing=editingOrderId===o.id;
+   const editForm=isEditing?`
+     <div class="edit-box">
+       <label>Product</label>
+       <input id="edit-product-${escapeHTML(o.id)}" value="${escapeHTML(o.product)}">
+       <div class="row">
+         <div><label>Quantity</label><input id="edit-qty-${escapeHTML(o.id)}" type="number" min="1" inputmode="numeric" value="${escapeHTML(o.qty)}"></div>
+         <div><label>Price per item (₹)</label><input id="edit-price-${escapeHTML(o.id)}" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHTML(o.price)}"></div>
+       </div>
+       <div class="row">
+         <div><label>Colour / colour split</label><input id="edit-colour-${escapeHTML(o.id)}" value="${escapeHTML(o.colour||'')}"></div>
+         <div><label>Size (optional)</label><input id="edit-size-${escapeHTML(o.id)}" value="${escapeHTML(o.size||'')}"></div>
+       </div>
+       <label>Delivery date / note</label>
+       <input id="edit-delivery-${escapeHTML(o.id)}" value="${escapeHTML(o.delivery||'')}">
+       <div class="actions">
+         <button type="button" class="cancel-btn" onclick="cancelEditOrder()">Cancel</button>
+         <button type="button" class="primary" style="margin-top:0" onclick="saveEditedOrder('${escapeHTML(o.id)}')">Save changes</button>
+       </div>
+     </div>
+   `:'';
+   return `<div class="order">
+     <div class="order-top">
+       <span>${escapeHTML(o.product)} × ${o.qty}</span>
+       <div class="order-right">
+         <span>₹${Number(o.total).toLocaleString('en-IN')}</span>
+         ${!isEditing?`<button type="button" class="edit-btn" onclick="startEditOrder('${escapeHTML(o.id)}')">Edit</button>`:''}
+       </div>
+     </div>
+     <div>${escapeHTML(o.colour||'Colour not entered')} ${o.size?' · Size '+escapeHTML(o.size):''}</div>
+     <div class="small">${escapeHTML(o.id)} · ${escapeHTML(o.date)}</div>
+     <div class="small">${o.delivery?'Delivery: '+escapeHTML(o.delivery):'Delivery date not entered'} · ₹${o.price} each</div>
+     ${editForm}
+   </div>`;
+ }).join('');
 }
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 </script>
@@ -316,6 +379,7 @@ onAuthStateChanged(auth, (user) => {
     showPage("new");
   } else {
     if (listening && recognition) recognition.stop();
+    editingOrderId = null;
     document.getElementById("previewPanel").classList.add("hidden");
     appView.classList.add("hidden");
     loginView.classList.remove("hidden");
