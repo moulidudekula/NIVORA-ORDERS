@@ -87,7 +87,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28p
 <p class="small" id="micHelp">Allow microphone access when your browser asks.</p>
 </div>
 <label for="spoken">Recognised words / Order details</label>
-<textarea id="spoken" placeholder="ఉదా: నాకు 5 టీ షర్ట్స్ కావాలి. 2 రెడ్, 3 వైట్. ఒక్కొక్కటి 250 రూపాయలు."></textarea>
+<textarea id="spoken" placeholder="ఉదా: నాకు 5 టీ షర్ట్స్ కావాలి. 2 రెడ్, 3 వైట్. సైజ్ L. ఒక్కొక్కటి 250 రూపాయలు. డెలివరీ రేపు."></textarea>
 <button class="primary" onclick="makePreview()">Create order preview</button>
 </div>
 <div class="panel hidden" id="previewPanel">
@@ -140,29 +140,131 @@ function toggleRecording(){
  recognition=new SR();recognition.lang='te-IN';recognition.continuous=true;recognition.interimResults=true;
  recognition.onstart=()=>{listening=true;$('micBtn').classList.add('listening');$('micStatus').textContent='Listening…';};
  recognition.onresult=e=>{let text='';for(let i=0;i<e.results.length;i++)text+=e.results[i][0].transcript+' ';$('spoken').value=text.trim();};
- recognition.onerror=e=>{$('micStatus').textContent='Mic issue: '+e.error+' — you can type instead.';};
+ recognition.onerror=e=>{listening=false;$('micBtn').classList.remove('listening');$('micStatus').textContent='Mic issue: '+e.error+' — you can type instead.';};
  recognition.onend=()=>{listening=false;$('micBtn').classList.remove('listening');$('micStatus').textContent='Recording stopped';};
  recognition.start();
 }
+
+function normalizeSpokenNumbers(raw){
+ let s = ' ' + raw.toLowerCase() + ' ';
+ const wordNums = [
+   [/\b(one|ఒక|ఒకటి)\b/g, ' 1 '],
+   [/\b(two|రెండు)\b/g, ' 2 '],
+   [/\b(three|మూడు)\b/g, ' 3 '],
+   [/\b(four|నాలుగు)\b/g, ' 4 '],
+   [/\b(five|ఐదు|అయిదు)\b/g, ' 5 '],
+   [/\b(six|ఆరు)\b/g, ' 6 '],
+   [/\b(seven|ఏడు)\b/g, ' 7 '],
+   [/\b(eight|ఎనిమిది)\b/g, ' 8 '],
+   [/\b(nine|తొమ్మిది)\b/g, ' 9 '],
+   [/\b(ten|పది)\b/g, ' 10 '],
+   [/\b(twelve|పన్నెండు)\b/g, ' 12 '],
+   [/\b(fifteen|పదిహేను)\b/g, ' 15 '],
+   [/\b(twenty|ఇరవై)\b/g, ' 20 '],
+   [/\b(twenty\s*five|ఇరవై\s*ఐదు)\b/g, ' 25 '],
+   [/\b(thirty|ముప్పై)\b/g, ' 30 '],
+   [/\b(forty|నలభై)\b/g, ' 40 '],
+   [/\b(fifty|యాభై)\b/g, ' 50 '],
+   [/\b(hundred|వంద|నూరు)\b/g, ' 100 '],
+   [/\b(two\s*hundred|రెండు\s*వందలు|రెండు\s*వందల)\b/g, ' 200 '],
+   [/\b(two\s*fifty|రెండు\s*వందల\s*యాభై)\b/g, ' 250 '],
+   [/\b(three\s*hundred|మూడు\s*వందలు|మూడు\s*వందల)\b/g, ' 300 '],
+   [/\b(five\s*hundred|ఐదు\s*వందలు|ఐదు\s*వందల)\b/g, ' 500 '],
+   [/\b(thousand|వెయ్యి|ఒక\s*వెయ్యి)\b/g, ' 1000 ']
+ ];
+ for(const [re, rep] of wordNums) s = s.replace(re, rep);
+ return s.replace(/\s+/g, ' ').trim();
+}
+
 function numberNear(text,patterns){
  for(const re of patterns){const m=text.match(re);if(m){const n=Number(m[1]);if(Number.isFinite(n))return n;}}
  return '';
 }
+
 function makePreview(){
- const t=$('spoken').value.trim();if(!t){alert('ముందుగా మాట్లాడండి లేదా order details type చేయండి.');return;}
- let q=numberNear(t,[/(?:qty|quantity)\s*[:=]?\s*(\d+)/i,/(\d+)\s*(?:shirts?|t[\s-]?shirts?|jeans?|పీసులు|షర్ట్స్?)/i,/(\d+)\s*(?:కావాలి|మాత్రం)/]);
- let p=numberNear(t,[/₹\s*(\d+(?:\.\d+)?)/,/(\d+(?:\.\d+)?)\s*(?:rupees?|rs\.?|రూపాయలు)/i,/ ఒక్కొక్కటి\s*(\d+)/]);
- let product='';const low=t.toLowerCase();
- if(/t[\s-]?shirts?|టీ\s?షర్ట్స్?|షర్ట్స్?/i.test(t))product='T-Shirt';
+ const raw=$('spoken').value.trim();if(!raw){alert('ముందుగా మాట్లాడండి లేదా order details type చేయండి.');return;}
+ const t=normalizeSpokenNumbers(raw);
+
+ // 1. Price per item extraction first so price numbers aren't mistaken for quantity
+ let p=numberNear(t,[
+   /₹\s*(\d+(?:\.\d+)?)/,
+   /(?:ఒక్కొక్కటి|ఒక్కోటి|ప్రతి\s*ఒక్కటి|each|per\s*piece|rate|price|ధర|రేటు)\s*[:=-]?\s*(\d+(?:\.\d+)?)/i,
+   /(\d+(?:\.\d+)?)\s*(?:rupees?|rs\.?|రూపాయలు|రూపాయల|రూ\.?|each|per\s*piece)/i
+ ]);
+
+ // 2. Quantity extraction
+ let q=numberNear(t,[
+   /(?:qty|quantity|క్వాంటిటీ)\s*[:=]?\s*(\d+)/i,
+   /(\d+)\s*(?:t[\s-]?shirts?|shirts?|jeans?|dresses?|sarees?|pants?|trousers?|pieces?|pcs|పీసులు|పీస్|టీ\s?షర్ట్స్?|షర్ట్స్?|షర్టులు|జీన్స్|డ్రెస్సులు|చీరలు|ప్యాంట్లు)/i,
+   /(\d+)\s*(?:కావాలి|మాత్రం|ఆర్డర్|send|want|need)/i
+ ]);
+
+ const allNums=(t.match(/\d+(?:\.\d+)?/g)||[]).map(Number).filter(n=>Number.isFinite(n));
+ if(!p && allNums.length>=1){
+   const big=allNums.find(n=>n>=50 && n!==q);
+   if(big) p=big;
+ }
+ if(!q && allNums.length>=1){
+   const small=allNums.find(n=>n>0 && n<=100 && n!==p);
+   if(small) q=small;
+ }
+
+ // 3. Product extraction
+ let product='';
+ if(/t[\s-]?shirts?|టీ\s?షర్ట్స్?|టీ\s?షర్టు|టీషర్ట్/i.test(t))product='T-Shirt';
  else if(/jeans?|జీన్స్/i.test(t))product='Jeans';
- else if(/shirts?|షర్టు/i.test(t))product='Shirt';
- else if(/dress|డ్రెస్/i.test(t))product='Dress';
- $('product').value=product;$('qty').value=q;$('price').value=p;
- $('colour').value='';
- const colours=[];for(const c of ['red','రెడ్','blue','బ్లూ','black','బ్లాక్','white','వైట్','green','గ్రీన్'])if(low.includes(c))colours.push(c);
- $('colour').value=colours.join(', ');
- $('size').value='';$('delivery').value='';
- $('previewPanel').classList.remove('hidden');updateTotal();
+ else if(/shirts?|షర్టు|షర్ట్స్?|షర్టులు/i.test(t))product='Shirt';
+ else if(/dress|డ్రెస్|డ్రెస్సులు/i.test(t))product='Dress';
+ else if(/saree|శారీ|చీర|చీరలు/i.test(t))product='Saree';
+ else if(/pant|trouser|ప్యాంట్|ప్యాంట్లు/i.test(t))product='Pant';
+ else if(/kurti|కుర్తీ/i.test(t))product='Kurti';
+
+ // 4. Colours (captures counts with colour if spoken, e.g. "2 red, 3 white")
+ const colourPairs=[];
+ const colourMap=[
+   ['Red',/(?:(\d+)\s*)?(?:red|రెడ్|ఎరుపు)/i],
+   ['Blue',/(?:(\d+)\s*)?(?:blue|బ్లూ|నీలం)/i],
+   ['Black',/(?:(\d+)\s*)?(?:black|బ్లాక్|నలుపు)/i],
+   ['White',/(?:(\d+)\s*)?(?:white|వైట్|తెలుపు)/i],
+   ['Green',/(?:(\d+)\s*)?(?:green|గ్రీన్|ఆకుపచ్చ)/i],
+   ['Yellow',/(?:(\d+)\s*)?(?:yellow|యెల్లో|పసుపు)/i]
+ ];
+ for(const [label,re] of colourMap){
+   const m=t.match(re);
+   if(m) colourPairs.push(m[1] ? `${m[1]} ${label}` : label);
+ }
+
+ // 5. Size extraction
+ let size='';
+ const sizeMatch=raw.match(/(?:size|సైజ్|సైజు)\s*[:=-]?\s*(xs|s|m|l|xl|xxl|xxxl|\d{2})\b/i)
+   || raw.match(/\b(xs|xxl|xxxl|xl)\b/i)
+   || raw.match(/\b([sml])\s*(?:size|సైజ్|సైజు)\b/i);
+ if(sizeMatch) size=sizeMatch[1].toUpperCase();
+
+ // 6. Delivery date / note extraction
+ let delivery='';
+ const delMatch=raw.match(/(?:delivery|డెలివరీ|కావాల్సిన\s*రోజు)\s*[:=-]?\s*([^\n,.]+)/i);
+ if(delMatch){
+   delivery=delMatch[1].trim();
+ }else if(/రేపు|tomorrow/i.test(raw)){
+   delivery='Tomorrow';
+ }else if(/ఈరోజు|ఈ\s*రోజు|today/i.test(raw)){
+   delivery='Today';
+ }else if(/ఎల్లుండి|day\s*after\s*tomorrow/i.test(raw)){
+   delivery='Day after tomorrow';
+ }else{
+   const dateOnly=raw.match(/\b(\d{1,2}\s*(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|\d{1,2}[\/-]\d{1,2}(?:[\/-]\d{2,4})?)\b/i);
+   if(dateOnly) delivery=dateOnly[1];
+ }
+
+ $('product').value=product;
+ $('qty').value=q;
+ $('price').value=p;
+ $('colour').value=colourPairs.join(', ');
+ $('size').value=size;
+ $('delivery').value=delivery;
+ $('previewPanel').classList.remove('hidden');
+ updateTotal();
  $('previewPanel').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function updateTotal(){const q=Number($('qty').value)||0,p=Number($('price').value)||0;$('total').textContent='Total: ₹'+(q*p).toLocaleString('en-IN');}
@@ -171,7 +273,7 @@ function saveOrder(){
  const product=$('product').value.trim(),qty=Number($('qty').value),price=Number($('price').value);
  if(!product||!qty||!price){alert('Product, quantity and price are required. Please check them.');return;}
  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
- orders.unshift({id:'VO-'+Date.now().toString().slice(-7),date:new Date().toLocaleString(),product,qty,price,colour:$('colour').value,size:$('size').value,delivery:$('delivery').value,total:qty*price});
+ orders.unshift({id:'NO-'+Date.now().toString().slice(-7),date:new Date().toLocaleString(),product,qty,price,colour:$('colour').value,size:$('size').value,delivery:$('delivery').value,total:qty*price});
  localStorage.setItem('vaaniOrders',JSON.stringify(orders));
  $('spoken').value='';$('previewPanel').classList.add('hidden');
  alert('Order saved on this device.');showPage('history');
@@ -211,8 +313,10 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     loginView.classList.add("hidden");
     appView.classList.remove("hidden");
+    showPage("new");
   } else {
     if (listening && recognition) recognition.stop();
+    document.getElementById("previewPanel").classList.add("hidden");
     appView.classList.add("hidden");
     loginView.classList.remove("hidden");
   }
