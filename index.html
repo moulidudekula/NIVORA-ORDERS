@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#172554">
-<title>VaaniOrder — Voice to Business</title>
+<title>NIVORA ORDERS</title>
 <style>
 :root{--navy:#172554;--blue:#2563eb;--bg:#f4f7fb;--ink:#172033;--muted:#64748b;--line:#e2e8f0;--green:#15803d}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
@@ -47,9 +47,9 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28p
 
 <div id="loginView" class="login-wrap">
   <div class="login-box">
-    <div class="small" style="letter-spacing:2px;font-weight:800;color:var(--navy)">VAANIORDER</div>
+    <div class="small" style="letter-spacing:2px;font-weight:800;color:var(--navy)">NIVORA ORDERS</div>
     <h2 style="margin-top:6px">Log in</h2>
-    <p class="hint">Sign in to access VaaniOrder.</p>
+    <p class="hint">Sign in to access NIVORA ORDERS.</p>
     <form id="loginForm">
       <label for="emailInput">Email</label>
       <input id="emailInput" type="email" required autocomplete="email" placeholder="owner@example.com">
@@ -65,7 +65,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28p
 <header><div class="wrap">
 <div class="header-row">
   <div>
-    <div class="brand">VAANIORDER</div>
+    <div class="brand">NIVORA ORDERS</div>
     <h1>Voice to Business</h1>
     <p>Speak an order. Review it. Save it.</p>
   </div>
@@ -119,7 +119,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28p
 </div>
 </section>
 </main>
-<footer>VaaniOrder demo · Data stays in this browser on this device. Export or cloud backup is not included in this first version.</footer>
+<footer>NIVORA ORDERS · Data stays in this browser on this device.</footer>
 </div>
 
 <script>
@@ -139,7 +139,7 @@ function toggleRecording(){
  if(listening){recognition.stop();return;}
  recognition=new SR();recognition.lang='te-IN';recognition.continuous=true;recognition.interimResults=true;
  recognition.onstart=()=>{listening=true;$('micBtn').classList.add('listening');$('micStatus').textContent='Listening…';};
- recognition.onresult=e=>{let text='';for(let i=0;i<e.length;i++){}for(let i=0;i<e.results.length;i++)text+=e.results[i][0].transcript+' ';$('spoken').value=text.trim();};
+ recognition.onresult=e=>{let text='';for(let i=0;i<e.results.length;i++)text+=e.results[i][0].transcript+' ';$('spoken').value=text.trim();};
  recognition.onerror=e=>{$('micStatus').textContent='Mic issue: '+e.error+' — you can type instead.';};
  recognition.onend=()=>{listening=false;$('micBtn').classList.remove('listening');$('micStatus').textContent='Recording stopped';};
  recognition.start();
@@ -150,7 +150,6 @@ function numberNear(text,patterns){
 }
 function makePreview(){
  const t=$('spoken').value.trim();if(!t){alert('ముందుగా మాట్లాడండి లేదా order details type చేయండి.');return;}
- // Lightweight demo parser: user must verify every extracted field.
  let q=numberNear(t,[/(?:qty|quantity)\s*[:=]?\s*(\d+)/i,/(\d+)\s*(?:shirts?|t[\s-]?shirts?|jeans?|పీసులు|షర్ట్స్?)/i,/(\d+)\s*(?:కావాలి|మాత్రం)/]);
  let p=numberNear(t,[/₹\s*(\d+(?:\.\d+)?)/,/(\d+(?:\.\d+)?)\s*(?:rupees?|rs\.?|రూపాయలు)/i,/ ఒక్కొక్కటి\s*(\d+)/]);
  let product='';const low=t.toLowerCase();
@@ -242,8 +241,3 @@ window.logoutUser = async function () {
 </script>
 </body>
 </html>
-```[cite: 8, 9]
-
-ఈ కోడ్‌ను GitHub లోని `index.html` లో పేస్ట్ చేసి Commit చేయండి. ఇప్పుడు మీ అసలు **VaaniOrder** (`🎙 Tap to speak`, `Create order preview`, `Previous orders`) అచ్చం అలాగే ఉండి, ముందు **Log in** మరియు హెడర్‌లో **Log out** మాత్రమే పనిచేస్తాయి[cite: 9].
-
-ఇది అప్‌డేట్ చేశాక లాగిన్ చేసి **🎙 Tap to speak** టెస్ట్ చేస్తే ఎలా వస్తోంది?
