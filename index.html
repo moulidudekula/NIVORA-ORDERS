@@ -420,4 +420,278 @@ function upsertCustomerRecord(name,phone,orderTotal){
   const idx=customers.findIndex(c=>(c.name||'').toLowerCase()===key || (cleanPhone && c.phone===cleanPhone));
   if(idx>-1){
     customers[idx].name=cleanName || customers[idx].name;
-    customers[idx].phone=cleanPhone || customers[id
+    customers[idx].phone=cleanPhone || customers[idx].phone;
+    customers[idx].ordersCount=(customers[idx].ordersCount||0)+1;
+    customers[idx].totalSpent=(customers[idx].totalSpent||0)+(Number(orderTotal)||0);
+  }else{
+    customers.unshift({
+      id:'CU-'+Date.now().toString().slice(-6),
+      name:cleanName || 'WhatsApp Customer',
+      phone:cleanPhone,
+      ordersCount:1,
+      totalSpent:Number(orderTotal)||0
+    });
+  }
+  localStorage.setItem('nivoraCustomers',JSON.stringify(customers));
+}
+
+function saveOrder(){
+  const product=$('product').value.trim(),qty=Number($('qty').value),price=Number($('price').value);
+  if(!product||!qty||!price){alert('Product, quantity and price are required. Please check them.');return;}
+  if(!$('verifiedCheckbox').checked){alert('Please tick the verification checkbox after checking extracted details.');return;}
+
+  const custName=$('vCustomer').value.trim() || $('customerName').value.trim() || 'Walk-in / Voice';
+  const custPhone=$('vPhone').value.trim() || $('customerPhone').value.trim();
+  const total=qty*price;
+
+  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
+  orders.unshift({
+    id:'NO-'+Date.now().toString().slice(-7),
+    date:new Date().toLocaleString(),
+    customer:custName,
+    phone:custPhone,
+    product,qty,price,
+    colour:$('colour').value.trim(),
+    size:$('size').value.trim(),
+    delivery:$('delivery').value.trim(),
+    status:$('status').value || 'Pending',
+    voiceNoteFile:uploadedVoiceMeta ? uploadedVoiceMeta.fileName : '',
+    rawText:$('spoken').value.trim(),
+    verified:true,
+    total
+  });
+  localStorage.setItem('vaaniOrders',JSON.stringify(orders));
+  upsertCustomerRecord(custName,custPhone,total);
+
+  $('spoken').value='';
+  $('customerName').value='';
+  $('customerPhone').value='';
+  $('waAudioInput').value='';
+  uploadedVoiceMeta=null;
+  $('waAudioInfo').classList.add('hidden');
+  $('waAudioPlayer').classList.add('hidden');
+  $('previewPanel').classList.add('hidden');
+  alert('Verified order saved.');
+  showPage('history');
+}
+
+function startEditOrder(id){editingOrderId=id;renderOrders();}
+function cancelEditOrder(){editingOrderId=null;renderOrders();}
+
+function saveEditedOrder(id){
+  const product=$('edit-product-'+id).value.trim();
+  const qty=Number($('edit-qty-'+id).value);
+  const price=Number($('edit-price-'+id).value);
+  if(!product||!qty||!price){alert('Product, quantity and price are required.');return;}
+  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
+  const idx=orders.findIndex(o=>o.id===id);
+  if(idx===-1)return;
+  orders[idx]={
+    ...orders[idx],
+    customer:$('edit-cust-'+id).value.trim() || orders[idx].customer || 'Walk-in / Voice',
+    phone:$('edit-phone-'+id).value.trim(),
+    product,qty,price,
+    colour:$('edit-colour-'+id).value.trim(),
+    size:$('edit-size-'+id).value.trim(),
+    delivery:$('edit-delivery-'+id).value.trim(),
+    status:$('edit-status-'+id).value || 'Pending',
+    total:qty*price
+  };
+  localStorage.setItem('vaaniOrders',JSON.stringify(orders));
+  editingOrderId=null;
+  renderOrders();
+}
+
+function updateOrderStatus(id,newStatus){
+  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
+  const idx=orders.findIndex(o=>o.id===id);
+  if(idx===-1)return;
+  orders[idx].status=newStatus;
+  localStorage.setItem('vaaniOrders',JSON.stringify(orders));
+  renderOrders();
+}
+
+function deleteOrder(id){
+  if(!confirm('Delete this order?'))return;
+  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]').filter(o=>o.id!==id);
+  localStorage.setItem('vaaniOrders',JSON.stringify(orders));
+  if(editingOrderId===id) editingOrderId=null;
+  renderOrders();
+}
+
+function renderOrders(){
+  const q=($('orderSearch')?$('orderSearch').value:'').trim().toLowerCase();
+  const st=$('statusFilter')?$('statusFilter').value:'ALL';
+  const allOrders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
+  const orders=allOrders.filter(o=>{
+    const statusOk=(st==='ALL') || ((o.status||'Pending')===st);
+    const hay=`${o.id||''} ${o.customer||''} ${o.phone||''} ${o.product||''} ${o.colour||''} ${o.voiceNoteFile||''}`.toLowerCase();
+    return statusOk && (!q || hay.includes(q));
+  });
+
+  const el=$('ordersList');
+  if(!orders.length){el.innerHTML='<div class="empty">No matching orders found.</div>';return;}
+
+  el.innerHTML=orders.map(o=>{
+    const status=o.status||'Pending';
+    const isEditing=editingOrderId===o.id;
+    const editForm=isEditing?`
+      <div class="edit-box">
+        <div class="row">
+          <div><label>Customer Name</label><input id="edit-cust-${escapeHTML(o.id)}" value="${escapeHTML(o.customer||'')}"></div>
+          <div><label>Phone / WhatsApp</label><input id="edit-phone-${escapeHTML(o.id)}" value="${escapeHTML(o.phone||'')}"></div>
+        </div>
+        <label>Product</label>
+        <input id="edit-product-${escapeHTML(o.id)}" value="${escapeHTML(o.product)}">
+        <div class="row">
+          <div><label>Quantity</label><input id="edit-qty-${escapeHTML(o.id)}" type="number" min="1" inputmode="numeric" value="${escapeHTML(o.qty)}"></div>
+          <div><label>Price per item (₹)</label><input id="edit-price-${escapeHTML(o.id)}" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHTML(o.price)}"></div>
+        </div>
+        <div class="row">
+          <div><label>Colour / colour split</label><input id="edit-colour-${escapeHTML(o.id)}" value="${escapeHTML(o.colour||'')}"></div>
+          <div><label>Size (optional)</label><input id="edit-size-${escapeHTML(o.id)}" value="${escapeHTML(o.size||'')}"></div>
+        </div>
+        <div class="row">
+          <div><label>Delivery date / note</label><input id="edit-delivery-${escapeHTML(o.id)}" value="${escapeHTML(o.delivery||'')}"></div>
+          <div>
+            <label>Status</label>
+            <select id="edit-status-${escapeHTML(o.id)}">
+              <option value="Pending" ${status==='Pending'?'selected':''}>Pending</option>
+              <option value="Confirmed" ${status==='Confirmed'?'selected':''}>Confirmed</option>
+              <option value="Delivered" ${status==='Delivered'?'selected':''}>Delivered</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button type="button" class="cancel-btn" onclick="cancelEditOrder()">Cancel</button>
+          <button type="button" class="primary" style="margin-top:0" onclick="saveEditedOrder('${escapeHTML(o.id)}')">Save changes</button>
+        </div>
+      </div>
+    `:'';
+
+    return `<div class="order">
+      <div class="order-top">
+        <span>${escapeHTML(o.customer||'Customer')} · ${escapeHTML(o.product)} × ${o.qty}</span>
+        <div class="order-right">
+          <span class="badge st-${escapeHTML(status)}">${escapeHTML(status)}</span>
+          <span>₹${Number(o.total).toLocaleString('en-IN')}</span>
+          ${!isEditing?`<button type="button" class="edit-btn" onclick="startEditOrder('${escapeHTML(o.id)}')">Edit</button>`:''}
+          <button type="button" class="danger-btn" onclick="deleteOrder('${escapeHTML(o.id)}')">Delete</button>
+        </div>
+      </div>
+      <div>${escapeHTML(o.colour||'Colour not entered')}${o.size?' · Size '+escapeHTML(o.size):''}${o.phone?' · 📞 '+escapeHTML(o.phone):''}</div>
+      <div class="small">${escapeHTML(o.id)} · ${escapeHTML(o.date)}${o.voiceNoteFile?' · 🎧 '+escapeHTML(o.voiceNoteFile):''}${o.verified?' · ✓ Verified':''}</div>
+      <div class="small">${o.delivery?'Delivery: '+escapeHTML(o.delivery):'Delivery date not entered'} · ₹${o.price} each</div>
+      <div style="margin-top:8px;max-width:200px">
+        <select onchange="updateOrderStatus('${escapeHTML(o.id)}',this.value)">
+          <option value="Pending" ${status==='Pending'?'selected':''}>Status: Pending</option>
+          <option value="Confirmed" ${status==='Confirmed'?'selected':''}>Status: Confirmed</option>
+          <option value="Delivered" ${status==='Delivered'?'selected':''}>Status: Delivered</option>
+        </select>
+      </div>
+      ${editForm}
+    </div>`;
+  }).join('');
+}
+
+function addCustomerManual(){
+  const name=$('newCustName').value.trim();
+  const phone=$('newCustPhone').value.trim();
+  if(!name && !phone){alert('Enter customer name or phone.');return;}
+  upsertCustomerRecord(name||'Customer',phone,0);
+  $('newCustName').value='';
+  $('newCustPhone').value='';
+  renderCustomers();
+}
+
+function renderCustomers(){
+  const customers=JSON.parse(localStorage.getItem('nivoraCustomers')||'[]');
+  const el=$('customersList');
+  if(!customers.length){el.innerHTML='<div class="empty">No customers recorded yet.</div>';return;}
+  el.innerHTML=customers.map(c=>`
+    <div class="order">
+      <div class="order-top">
+        <span>${escapeHTML(c.name)}</span>
+        <span>₹${Number(c.totalSpent||0).toLocaleString('en-IN')}</span>
+      </div>
+      <div class="small">${c.phone?'📞 '+escapeHTML(c.phone)+' · ':''}Orders: ${Number(c.ordersCount||0)} · ${escapeHTML(c.id)}</div>
+    </div>
+  `).join('');
+}
+
+function exportOrdersCSV(){
+  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
+  if(!orders.length){alert('No orders to export.');return;}
+  const rows=[['Order ID','Date','Customer','Phone','Product','Qty','Price','Total','Colour','Size','Delivery','Status','Voice File']];
+  orders.forEach(o=>rows.push([o.id,o.date,o.customer||'',o.phone||'',o.product,o.qty,o.price,o.total,o.colour||'',o.size||'',o.delivery||'',o.status||'Pending',o.voiceNoteFile||'']));
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='nivora-orders.csv';a.click();
+  URL.revokeObjectURL(url);
+}
+
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD553vHEjV6-Owme9jzHbNTUV9hY1j2vpI",
+  authDomain: "nivora-orders.firebaseapp.com",
+  projectId: "nivora-orders",
+  storageBucket: "nivora-orders.firebasestorage.app",
+  messagingSenderId: "580605150647",
+  appId: "1:580605150647:web:3d81e1c59f956059c0d432",
+  measurementId: "G-62QRTCNV1B"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const loginView = document.getElementById("loginView");
+const appView = document.getElementById("appView");
+const loginForm = document.getElementById("loginForm");
+const loginError = document.getElementById("loginError");
+const loginBtn = document.getElementById("loginBtn");
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    loginView.classList.add("hidden");
+    appView.classList.remove("hidden");
+    showPage("new");
+  } else {
+    if (listening && recognition) recognition.stop();
+    editingOrderId = null;
+    document.getElementById("previewPanel").classList.add("hidden");
+    appView.classList.add("hidden");
+    loginView.classList.remove("hidden");
+  }
+});
+
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  loginError.classList.add("hidden");
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Logging in...";
+  try {
+    await signInWithEmailAndPassword(auth, document.getElementById("emailInput").value.trim(), document.getElementById("passwordInput").value);
+    loginForm.reset();
+  } catch (_) {
+    loginError.textContent = "Invalid email or password.";
+    loginError.classList.remove("hidden");
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Log in";
+  }
+});
+
+window.logoutUser = async function () {
+  await signOut(auth);
+};
+</script>
+</body>
+</html>
