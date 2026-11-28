@@ -8,18 +8,21 @@
 <style>
 :root{--navy:#172554;--blue:#2563eb;--bg:#f4f7fb;--ink:#172033;--muted:#64748b;--line:#e2e8f0;--green:#15803d;--amber:#b45309;--red:#b91c1c}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
-header{background:linear-gradient(135deg,#172554,#1d4ed8);color:white;padding:22px 18px 26px}
+header{background:linear-gradient(135deg,#090d16 0%,#172554 55%,#1d4ed8 100%);color:white;padding:20px 18px 24px;border-bottom:1px solid rgba(255,255,255,.12)}
 .wrap{max-width:820px;margin:auto}
-.header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-header .brand{font-size:13px;letter-spacing:2px;font-weight:800;opacity:.85}
-header h1{margin:6px 0 4px;font-size:28px}header p{margin:0;color:#dbeafe;font-size:14px}
+.header-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand-group{display:flex;align-items:center;gap:14px;min-width:0}
+.nivora-logo-badge{width:76px;height:52px;border-radius:12px;background:#05070c;border:1px solid rgba(245,197,99,.45);display:flex;align-items:center;justify-content:center;padding:4px 6px;flex-shrink:0;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.nivora-logo-badge svg{width:100%;height:100%;display:block}
+header .brand{font-size:13px;letter-spacing:2.4px;font-weight:800;color:#f8d486}
+header h1{margin:4px 0 3px;font-size:26px;line-height:1.15}header p{margin:0;color:#dbeafe;font-size:13px}
 .logout-btn{background:rgba(255,255,255,.16);color:white;border:1px solid rgba(255,255,255,.35);border-radius:10px;padding:9px 13px;font:700 13px system-ui;cursor:pointer;white-space:nowrap}
 main{padding:18px;max-width:820px;margin:auto}
 .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .tab{border:1px solid var(--line);background:white;border-radius:12px;padding:11px 14px;font-weight:700;color:var(--muted);flex:1;min-width:120px}
 .tab.active{background:var(--navy);color:white;border-color:var(--navy)}
 .panel{background:white;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 4px 18px #0f172a08}
-h2{font-size:19px;margin:0 0 5px}h3{font-size:15px;margin:14px 0 6px}
+h2{font-size:19px;margin:0 0 5px}
 .hint{color:var(--muted);font-size:13px;margin:0 0 14px}
 label{display:block;font-weight:700;font-size:13px;margin:11px 0 5px}
 input,textarea,select{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:11px;font:inherit;background:white;color:var(--ink)}
@@ -55,19 +58,55 @@ audio{width:100%;margin-top:8px;height:38px}
 .small{font-size:12px;color:var(--muted)}
 .actions{display:flex;gap:8px;margin-top:12px}.actions button{flex:1}
 .hidden{display:none!important}.empty{text-align:center;color:var(--muted);padding:24px}
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px}
-.login-box{width:100%;max-width:420px;background:white;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 4px 18px #0f172a08}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(circle at top,#172554,#090d16 70%)}
+.login-box{width:100%;max-width:420px;background:white;border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:0 12px 32px rgba(0,0,0,.35)}
+.login-logo-banner{background:#05070c;border-radius:14px;padding:14px 12px 10px;text-align:center;margin-bottom:14px;border:1px solid rgba(245,197,99,.4)}
+.login-logo-banner svg{width:190px;max-width:100%;height:auto;display:block;margin:0 auto}
+.login-tagline{color:#f5d58e;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+.login-brand-word{color:#f6cf78;font-size:17px;letter-spacing:6px;font-weight:700;margin-top:4px;font-family:Georgia,serif}
 .login-err{color:#b91c1c;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px 12px;font-size:13px;margin-top:12px}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28px}
-@media(max-width:520px){.row{grid-template-columns:1fr}header h1{font-size:24px}.panel{padding:15px}}
+@media(max-width:520px){.row{grid-template-columns:1fr}header h1{font-size:21px}.nivora-logo-badge{width:64px;height:44px}.panel{padding:15px}}
 </style>
 </head>
 <body>
 
+<!-- LOG IN VIEW -->
 <div id="loginView" class="login-wrap">
   <div class="login-box">
-    <div class="small" style="letter-spacing:2px;font-weight:800;color:var(--navy)">NIVORA ORDERS</div>
-    <h2 style="margin-top:6px">Log in</h2>
+    <div class="login-logo-banner">
+      <div class="login-tagline">Light, Grace, Wonder.</div>
+      <svg viewBox="0 0 320 125" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NIVORA Logo">
+        <defs>
+          <linearGradient id="goldGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fff1b8"/>
+            <stop offset="35%" stop-color="#eab344"/>
+            <stop offset="70%" stop-color="#b67916"/>
+            <stop offset="100%" stop-color="#ffe28a"/>
+          </linearGradient>
+          <linearGradient id="silverGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="45%" stop-color="#cbd5e1"/>
+            <stop offset="80%" stop-color="#64748b"/>
+            <stop offset="100%" stop-color="#f8fafc"/>
+          </linearGradient>
+        </defs>
+        <!-- Left gold loop + N peak -->
+        <path d="M 88 24 C 36 24, 18 98, 76 102 C 108 104, 134 84, 160 62" fill="none" stroke="url(#goldGrad1)" stroke-width="11" stroke-linecap="round"/>
+        <path d="M 66 86 L 66 42 L 96 72 L 122 52" fill="none" stroke="url(#goldGrad1)" stroke-width="9" stroke-linejoin="miter" stroke-linecap="round"/>
+        <!-- Right gold loop -->
+        <path d="M 160 62 C 186 40, 212 22, 244 24 C 302 28, 284 102, 232 102 C 204 102, 182 88, 164 70" fill="none" stroke="url(#goldGrad1)" stroke-width="11" stroke-linecap="round"/>
+        <!-- Silver crossing ribbon & V -->
+        <path d="M 46 42 C 74 16, 118 24, 160 62 C 202 100, 246 108, 274 82" fill="none" stroke="url(#silverGrad1)" stroke-width="11" stroke-linecap="round"/>
+        <path d="M 186 46 L 218 84 L 254 40" fill="none" stroke="url(#silverGrad1)" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Sparkle highlights -->
+        <circle cx="256" cy="30" r="3.5" fill="#fff7d6"/>
+        <circle cx="84" cy="96" r="3" fill="#fff7d6"/>
+      </svg>
+      <div class="login-brand-word">NIVORA</div>
+    </div>
+
+    <h2 style="margin-top:4px">Log in</h2>
     <p class="hint">Sign in to access NIVORA ORDERS.</p>
     <form id="loginForm">
       <label for="emailInput">Email</label>
@@ -80,13 +119,40 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28p
   </div>
 </div>
 
+<!-- MAIN APP VIEW -->
 <div id="appView" class="hidden">
 <header><div class="wrap">
 <div class="header-row">
-  <div>
-    <div class="brand">NIVORA ORDERS</div>
-    <h1>Voice to Business</h1>
-    <p>Speak or upload WhatsApp voice note · Verify extraction · Manage customers & orders.</p>
+  <div class="brand-group">
+    <div class="nivora-logo-badge" title="NIVORA — Light, Grace, Wonder.">
+      <svg viewBox="0 0 320 135" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NIVORA Logo">
+        <defs>
+          <linearGradient id="goldGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fff1b8"/>
+            <stop offset="35%" stop-color="#eab344"/>
+            <stop offset="70%" stop-color="#b67916"/>
+            <stop offset="100%" stop-color="#ffe28a"/>
+          </linearGradient>
+          <linearGradient id="silverGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="45%" stop-color="#cbd5e1"/>
+            <stop offset="80%" stop-color="#64748b"/>
+            <stop offset="100%" stop-color="#f8fafc"/>
+          </linearGradient>
+        </defs>
+        <path d="M 88 20 C 36 20, 18 90, 76 94 C 108 96, 134 78, 160 56" fill="none" stroke="url(#goldGrad2)" stroke-width="11" stroke-linecap="round"/>
+        <path d="M 66 80 L 66 38 L 96 66 L 122 48" fill="none" stroke="url(#goldGrad2)" stroke-width="9" stroke-linecap="round"/>
+        <path d="M 160 56 C 186 36, 212 18, 244 20 C 302 24, 284 94, 232 94 C 204 94, 182 80, 164 64" fill="none" stroke="url(#goldGrad2)" stroke-width="11" stroke-linecap="round"/>
+        <path d="M 46 38 C 74 12, 118 20, 160 56 C 202 92, 246 100, 274 74" fill="none" stroke="url(#silverGrad2)" stroke-width="11" stroke-linecap="round"/>
+        <path d="M 186 42 L 218 78 L 254 36" fill="none" stroke="url(#silverGrad2)" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="160" y="126" text-anchor="middle" fill="#f6cf78" font-family="Georgia,serif" font-size="25" font-weight="bold" letter-spacing="10">NIVORA</text>
+      </svg>
+    </div>
+    <div>
+      <div class="brand">NIVORA ORDERS</div>
+      <h1>Voice to Business</h1>
+      <p>Speak or upload WhatsApp voice note · Verify extraction · Manage customers &amp; orders.</p>
+    </div>
   </div>
   <button type="button" class="logout-btn" onclick="logoutUser()">Log out</button>
 </div>
@@ -103,12 +169,12 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28p
 <section id="newPage">
   <div class="panel">
     <h2>1. Record, upload WhatsApp voice note, or type</h2>
-    <p class="hint">తెలుగు లేదా Englishలో మాట్లాడండి, WhatsApp audio file అప్‌లోడ్ చేయండి, లేదా keyboard mic / type వాడండి[cite: 4].</p>
+    <p class="hint">తెలుగు లేదా Englishలో మాట్లాడండి, WhatsApp audio file అప్‌లోడ్ చేయండి, లేదా keyboard mic / type వాడండి.</p>
 
     <div class="record">
       <button type="button" class="mic" id="micBtn" onclick="toggleRecording()" aria-label="Start recording">🎙</button>
       <strong id="micStatus">Tap to speak</strong>
-      <p class="small" id="micHelp">Allow microphone access or use keyboard mic[cite: 4].</p>
+      <p class="small" id="micHelp">Allow microphone access or use keyboard mic.</p>
     </div>
 
     <div class="wa-box">
@@ -137,7 +203,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28p
 
   <!-- VERIFIED EXTRACTION PANEL -->
   <div class="panel hidden" id="previewPanel">
-    <h2>2. Verified AI Extraction & Review</h2>
+    <h2>2. Verified AI Extraction &amp; Review</h2>
     <p class="hint">Extracted వివరాలను చెక్ చేసి, వెరిఫై చేసిన తర్వాతే సేవ్ చేయండి.</p>
 
     <div class="row">
@@ -182,7 +248,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:12px 18px 28p
 
     <div class="actions">
       <button type="button" class="secondary" onclick="makePreview()">Re-extract</button>
-      <button type="button" class="primary" style="margin-top:0" onclick="saveOrder()">Confirm & save</button>
+      <button type="button" class="primary" style="margin-top:0" onclick="saveOrder()">Confirm &amp; save</button>
     </div>
   </div>
 </section>
@@ -306,392 +372,4 @@ function normalizeSpokenNumbers(raw){
     [/\b(thousand|వెయ్యి|ఒక\s*వెయ్యి)\b/g,' 1000 ']
   ];
   for(const [re,rep] of wordNums) s=s.replace(re,rep);
-  return s.replace(/\s+/g,' ').trim();
-}
-
-function numberNear(text,patterns){
-  for(const re of patterns){const m=text.match(re);if(m){const n=Number(m[1]);if(Number.isFinite(n))return n;}}
-  return '';
-}
-
-function makePreview(){
-  const raw=$('spoken').value.trim();
-  if(!raw && !uploadedVoiceMeta){alert('ముందుగా మాట్లాడండి, WhatsApp audio అప్‌లోడ్ చేసి వివరాలు రాయండి, లేదా order details type చేయండి.');return;}
-  const sourceText=raw || (uploadedVoiceMeta ? uploadedVoiceMeta.fileName : '');
-  const t=normalizeSpokenNumbers(sourceText);
-
-  let p=numberNear(t,[
-    /₹\s*(\d+(?:\.\d+)?)/,
-    /(?:ఒక్కొక్కటి|ఒక్కోటి|ప్రతి\s*ఒక్కటి|each|per\s*piece|rate|price|ధర|రేటు)\s*[:=-]?\s*(\d+(?:\.\d+)?)/i,
-    /(\d+(?:\.\d+)?)\s*(?:rupees?|rs\.?|రూపాయలు|రూపాయల|రూ\.?|each|per\s*piece)/i
-  ]);
-
-  let q=numberNear(t,[
-    /(?:qty|quantity|క్వాంటిటీ)\s*[:=]?\s*(\d+)/i,
-    /(\d+)\s*(?:t[\s-]?shirts?|shirts?|jeans?|dresses?|sarees?|pants?|trousers?|pieces?|pcs|పీసులు|పీస్|టీ\s?షర్ట్స్?|షర్ట్స్?|షర్టులు|జీన్స్|డ్రెస్సులు|చీరలు|ప్యాంట్లు)/i,
-    /(\d+)\s*(?:కావాలి|మాత్రం|ఆర్డర్|send|want|need)/i
-  ]);
-
-  const allNums=(t.match(/\d+(?:\.\d+)?/g)||[]).map(Number).filter(n=>Number.isFinite(n));
-  if(!p && allNums.length>=1){
-    const big=allNums.find(n=>n>=50 && n!==q);
-    if(big) p=big;
-  }
-  if(!q && allNums.length>=1){
-    const small=allNums.find(n=>n>0 && n<=100 && n!==p);
-    if(small) q=small;
-  }
-
-  let product='';
-  if(/t[\s-]?shirts?|టీ\s?షర్ట్స్?|టీ\s?షర్టు|టీషర్ట్/i.test(t))product='T-Shirt';
-  else if(/jeans?|జీన్స్/i.test(t))product='Jeans';
-  else if(/shirts?|షర్టు|షర్ట్స్?|షర్టులు/i.test(t))product='Shirt';
-  else if(/dress|డ్రెస్|డ్రెస్సులు/i.test(t))product='Dress';
-  else if(/saree|శారీ|చీర|చీరలు/i.test(t))product='Saree';
-  else if(/pant|trouser|ప్యాంట్|ప్యాంట్లు/i.test(t))product='Pant';
-  else if(/kurti|కుర్తీ/i.test(t))product='Kurti';
-
-  const colourPairs=[];
-  const colourMap=[
-    ['Red',/(?:(\d+)\s*)?(?:red|రెడ్|ఎరుపు)/i],
-    ['Blue',/(?:(\d+)\s*)?(?:blue|బ్లూ|నీలం)/i],
-    ['Black',/(?:(\d+)\s*)?(?:black|బ్లాక్|నలుపు)/i],
-    ['White',/(?:(\d+)\s*)?(?:white|వైట్|తెలుపు)/i],
-    ['Green',/(?:(\d+)\s*)?(?:green|గ్రీన్|ఆకుపచ్చ)/i],
-    ['Yellow',/(?:(\d+)\s*)?(?:yellow|యెల్లో|పసుపు)/i]
-  ];
-  for(const [label,re] of colourMap){
-    const m=t.match(re);
-    if(m) colourPairs.push(m[1] ? `${m[1]} ${label}` : label);
-  }
-
-  let size='';
-  const sizeMatch=sourceText.match(/(?:size|సైజ్|సైజు)\s*[:=-]?\s*(xs|s|m|l|xl|xxl|xxxl|\d{2})\b/i)
-    || sourceText.match(/\b(xs|xxl|xxxl|xl)\b/i)
-    || sourceText.match(/\b([sml])\s*(?:size|సైజ్|సైజు)\b/i);
-  if(sizeMatch) size=sizeMatch[1].toUpperCase();
-
-  let delivery='';
-  const delMatch=sourceText.match(/(?:delivery|డెలివరీ|కావాల్సిన\s*రోజు)\s*[:=-]?\s*([^\n,.]+)/i);
-  if(delMatch){
-    delivery=delMatch[1].trim();
-  }else if(/రేపు|tomorrow/i.test(sourceText)){
-    delivery='Tomorrow';
-  }else if(/ఈరోజు|ఈ\s*రోజు|today/i.test(sourceText)){
-    delivery='Today';
-  }else if(/ఎల్లుండి|day\s*after\s*tomorrow/i.test(sourceText)){
-    delivery='Day after tomorrow';
-  }else{
-    const dateOnly=sourceText.match(/\b(\d{1,2}\s*(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|\d{1,2}[\/-]\d{1,2}(?:[\/-]\d{2,4})?)\b/i);
-    if(dateOnly) delivery=dateOnly[1];
-  }
-
-  const phoneMatch=sourceText.match(/\b(\d{10})\b/);
-  $('vCustomer').value=$('customerName').value.trim();
-  $('vPhone').value=$('customerPhone').value.trim() || (phoneMatch ? phoneMatch[1] : '');
-  $('product').value=product;
-  $('qty').value=q;
-  $('price').value=p;
-  $('colour').value=colourPairs.join(', ');
-  $('size').value=size;
-  $('delivery').value=delivery;
-  $('verifiedCheckbox').checked=false;
-
-  const foundCount=[product,q,p,colourPairs.length?1:'',size,delivery].filter(Boolean).length;
-  $('extractionSummary').textContent=`AI Extraction: ${foundCount}/6 order fields detected ${uploadedVoiceMeta ? '· WhatsApp audio attached ('+uploadedVoiceMeta.fileName+')' : ''}.`;
-
-  $('previewPanel').classList.remove('hidden');
-  updateTotal();
-  $('previewPanel').scrollIntoView({behavior:'smooth',block:'start'});
-}
-
-function updateTotal(){
-  const q=Number($('qty').value)||0,p=Number($('price').value)||0;
-  $('total').textContent='Total: ₹'+(q*p).toLocaleString('en-IN');
-}
-['qty','price'].forEach(id=>$(id).addEventListener('input',updateTotal));
-
-function upsertCustomerRecord(name,phone,orderTotal){
-  const cleanName=(name||'').trim();
-  const cleanPhone=(phone||'').trim();
-  if(!cleanName && !cleanPhone) return;
-  const key=(cleanName||cleanPhone).toLowerCase();
-  const customers=JSON.parse(localStorage.getItem('nivoraCustomers')||'[]');
-  const idx=customers.findIndex(c=>(c.name||'').toLowerCase()===key || (cleanPhone && c.phone===cleanPhone));
-  if(idx>-1){
-    customers[idx].name=cleanName || customers[idx].name;
-    customers[idx].phone=cleanPhone || customers[idx].phone;
-    customers[idx].ordersCount=(customers[idx].ordersCount||0)+1;
-    customers[idx].totalSpent=(customers[idx].totalSpent||0)+(Number(orderTotal)||0);
-  }else{
-    customers.unshift({
-      id:'CU-'+Date.now().toString().slice(-6),
-      name:cleanName || 'WhatsApp Customer',
-      phone:cleanPhone,
-      ordersCount:1,
-      totalSpent:Number(orderTotal)||0
-    });
-  }
-  localStorage.setItem('nivoraCustomers',JSON.stringify(customers));
-}
-
-function saveOrder(){
-  const product=$('product').value.trim(),qty=Number($('qty').value),price=Number($('price').value);
-  if(!product||!qty||!price){alert('Product, quantity and price are required. Please check them.');return;}
-  if(!$('verifiedCheckbox').checked){alert('Please tick the verification checkbox after checking extracted details.');return;}
-
-  const custName=$('vCustomer').value.trim() || $('customerName').value.trim() || 'Walk-in / Voice';
-  const custPhone=$('vPhone').value.trim() || $('customerPhone').value.trim();
-  const total=qty*price;
-
-  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
-  orders.unshift({
-    id:'NO-'+Date.now().toString().slice(-7),
-    date:new Date().toLocaleString(),
-    customer:custName,
-    phone:custPhone,
-    product,qty,price,
-    colour:$('colour').value.trim(),
-    size:$('size').value.trim(),
-    delivery:$('delivery').value.trim(),
-    status:$('status').value || 'Pending',
-    voiceNoteFile:uploadedVoiceMeta ? uploadedVoiceMeta.fileName : '',
-    rawText:$('spoken').value.trim(),
-    verified:true,
-    total
-  });
-  localStorage.setItem('vaaniOrders',JSON.stringify(orders));
-  upsertCustomerRecord(custName,custPhone,total);
-
-  $('spoken').value='';
-  $('customerName').value='';
-  $('customerPhone').value='';
-  $('waAudioInput').value='';
-  uploadedVoiceMeta=null;
-  $('waAudioInfo').classList.add('hidden');
-  $('waAudioPlayer').classList.add('hidden');
-  $('previewPanel').classList.add('hidden');
-  alert('Verified order saved.');
-  showPage('history');
-}
-
-function startEditOrder(id){editingOrderId=id;renderOrders();}
-function cancelEditOrder(){editingOrderId=null;renderOrders();}
-
-function saveEditedOrder(id){
-  const product=$('edit-product-'+id).value.trim();
-  const qty=Number($('edit-qty-'+id).value);
-  const price=Number($('edit-price-'+id).value);
-  if(!product||!qty||!price){alert('Product, quantity and price are required.');return;}
-  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
-  const idx=orders.findIndex(o=>o.id===id);
-  if(idx===-1)return;
-  orders[idx]={
-    ...orders[idx],
-    customer:$('edit-cust-'+id).value.trim() || orders[idx].customer || 'Walk-in / Voice',
-    phone:$('edit-phone-'+id).value.trim(),
-    product,qty,price,
-    colour:$('edit-colour-'+id).value.trim(),
-    size:$('edit-size-'+id).value.trim(),
-    delivery:$('edit-delivery-'+id).value.trim(),
-    status:$('edit-status-'+id).value || 'Pending',
-    total:qty*price
-  };
-  localStorage.setItem('vaaniOrders',JSON.stringify(orders));
-  editingOrderId=null;
-  renderOrders();
-}
-
-function updateOrderStatus(id,newStatus){
-  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
-  const idx=orders.findIndex(o=>o.id===id);
-  if(idx===-1)return;
-  orders[idx].status=newStatus;
-  localStorage.setItem('vaaniOrders',JSON.stringify(orders));
-  renderOrders();
-}
-
-function deleteOrder(id){
-  if(!confirm('Delete this order?'))return;
-  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]').filter(o=>o.id!==id);
-  localStorage.setItem('vaaniOrders',JSON.stringify(orders));
-  if(editingOrderId===id) editingOrderId=null;
-  renderOrders();
-}
-
-function renderOrders(){
-  const q=($('orderSearch')?$('orderSearch').value:'').trim().toLowerCase();
-  const st=$('statusFilter')?$('statusFilter').value:'ALL';
-  const allOrders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
-  const orders=allOrders.filter(o=>{
-    const statusOk=(st==='ALL') || ((o.status||'Pending')===st);
-    const hay=`${o.id||''} ${o.customer||''} ${o.phone||''} ${o.product||''} ${o.colour||''} ${o.voiceNoteFile||''}`.toLowerCase();
-    return statusOk && (!q || hay.includes(q));
-  });
-
-  const el=$('ordersList');
-  if(!orders.length){el.innerHTML='<div class="empty">No matching orders found.</div>';return;}
-
-  el.innerHTML=orders.map(o=>{
-    const status=o.status||'Pending';
-    const isEditing=editingOrderId===o.id;
-    const editForm=isEditing?`
-      <div class="edit-box">
-        <div class="row">
-          <div><label>Customer Name</label><input id="edit-cust-${escapeHTML(o.id)}" value="${escapeHTML(o.customer||'')}"></div>
-          <div><label>Phone / WhatsApp</label><input id="edit-phone-${escapeHTML(o.id)}" value="${escapeHTML(o.phone||'')}"></div>
-        </div>
-        <label>Product</label>
-        <input id="edit-product-${escapeHTML(o.id)}" value="${escapeHTML(o.product)}">
-        <div class="row">
-          <div><label>Quantity</label><input id="edit-qty-${escapeHTML(o.id)}" type="number" min="1" inputmode="numeric" value="${escapeHTML(o.qty)}"></div>
-          <div><label>Price per item (₹)</label><input id="edit-price-${escapeHTML(o.id)}" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHTML(o.price)}"></div>
-        </div>
-        <div class="row">
-          <div><label>Colour / colour split</label><input id="edit-colour-${escapeHTML(o.id)}" value="${escapeHTML(o.colour||'')}"></div>
-          <div><label>Size (optional)</label><input id="edit-size-${escapeHTML(o.id)}" value="${escapeHTML(o.size||'')}"></div>
-        </div>
-        <div class="row">
-          <div><label>Delivery date / note</label><input id="edit-delivery-${escapeHTML(o.id)}" value="${escapeHTML(o.delivery||'')}"></div>
-          <div>
-            <label>Status</label>
-            <select id="edit-status-${escapeHTML(o.id)}">
-              <option value="Pending" ${status==='Pending'?'selected':''}>Pending</option>
-              <option value="Confirmed" ${status==='Confirmed'?'selected':''}>Confirmed</option>
-              <option value="Delivered" ${status==='Delivered'?'selected':''}>Delivered</option>
-            </select>
-          </div>
-        </div>
-        <div class="actions">
-          <button type="button" class="cancel-btn" onclick="cancelEditOrder()">Cancel</button>
-          <button type="button" class="primary" style="margin-top:0" onclick="saveEditedOrder('${escapeHTML(o.id)}')">Save changes</button>
-        </div>
-      </div>
-    `:'';
-
-    return `<div class="order">
-      <div class="order-top">
-        <span>${escapeHTML(o.customer||'Customer')} · ${escapeHTML(o.product)} × ${o.qty}</span>
-        <div class="order-right">
-          <span class="badge st-${escapeHTML(status)}">${escapeHTML(status)}</span>
-          <span>₹${Number(o.total).toLocaleString('en-IN')}</span>
-          ${!isEditing?`<button type="button" class="edit-btn" onclick="startEditOrder('${escapeHTML(o.id)}')">Edit</button>`:''}
-          <button type="button" class="danger-btn" onclick="deleteOrder('${escapeHTML(o.id)}')">Delete</button>
-        </div>
-      </div>
-      <div>${escapeHTML(o.colour||'Colour not entered')}${o.size?' · Size '+escapeHTML(o.size):''}${o.phone?' · 📞 '+escapeHTML(o.phone):''}</div>
-      <div class="small">${escapeHTML(o.id)} · ${escapeHTML(o.date)}${o.voiceNoteFile?' · 🎧 '+escapeHTML(o.voiceNoteFile):''}${o.verified?' · ✓ Verified':''}</div>
-      <div class="small">${o.delivery?'Delivery: '+escapeHTML(o.delivery):'Delivery date not entered'} · ₹${o.price} each</div>
-      <div style="margin-top:8px;max-width:200px">
-        <select onchange="updateOrderStatus('${escapeHTML(o.id)}',this.value)">
-          <option value="Pending" ${status==='Pending'?'selected':''}>Status: Pending</option>
-          <option value="Confirmed" ${status==='Confirmed'?'selected':''}>Status: Confirmed</option>
-          <option value="Delivered" ${status==='Delivered'?'selected':''}>Status: Delivered</option>
-        </select>
-      </div>
-      ${editForm}
-    </div>`;
-  }).join('');
-}
-
-function addCustomerManual(){
-  const name=$('newCustName').value.trim();
-  const phone=$('newCustPhone').value.trim();
-  if(!name && !phone){alert('Enter customer name or phone.');return;}
-  upsertCustomerRecord(name||'Customer',phone,0);
-  $('newCustName').value='';
-  $('newCustPhone').value='';
-  renderCustomers();
-}
-
-function renderCustomers(){
-  const customers=JSON.parse(localStorage.getItem('nivoraCustomers')||'[]');
-  const el=$('customersList');
-  if(!customers.length){el.innerHTML='<div class="empty">No customers recorded yet.</div>';return;}
-  el.innerHTML=customers.map(c=>`
-    <div class="order">
-      <div class="order-top">
-        <span>${escapeHTML(c.name)}</span>
-        <span>₹${Number(c.totalSpent||0).toLocaleString('en-IN')}</span>
-      </div>
-      <div class="small">${c.phone?'📞 '+escapeHTML(c.phone)+' · ':''}Orders: ${Number(c.ordersCount||0)} · ${escapeHTML(c.id)}</div>
-    </div>
-  `).join('');
-}
-
-function exportOrdersCSV(){
-  const orders=JSON.parse(localStorage.getItem('vaaniOrders')||'[]');
-  if(!orders.length){alert('No orders to export.');return;}
-  const rows=[['Order ID','Date','Customer','Phone','Product','Qty','Price','Total','Colour','Size','Delivery','Status','Voice File']];
-  orders.forEach(o=>rows.push([o.id,o.date,o.customer||'',o.phone||'',o.product,o.qty,o.price,o.total,o.colour||'',o.size||'',o.delivery||'',o.status||'Pending',o.voiceNoteFile||'']));
-  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download='nivora-orders.csv';a.click();
-  URL.revokeObjectURL(url);
-}
-
-function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-</script>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyD553vHEjV6-Owme9jzHbNTUV9hY1j2vpI",
-  authDomain: "nivora-orders.firebaseapp.com",
-  projectId: "nivora-orders",
-  storageBucket: "nivora-orders.firebasestorage.app",
-  messagingSenderId: "580605150647",
-  appId: "1:580605150647:web:3d81e1c59f956059c0d432",
-  measurementId: "G-62QRTCNV1B"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-const loginView = document.getElementById("loginView");
-const appView = document.getElementById("appView");
-const loginForm = document.getElementById("loginForm");
-const loginError = document.getElementById("loginError");
-const loginBtn = document.getElementById("loginBtn");
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loginView.classList.add("hidden");
-    appView.classList.remove("hidden");
-    showPage("new");
-  } else {
-    if (listening && recognition) recognition.stop();
-    editingOrderId = null;
-    document.getElementById("previewPanel").classList.add("hidden");
-    appView.classList.add("hidden");
-    loginView.classList.remove("hidden");
-  }
-});
-
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  loginError.classList.add("hidden");
-  loginBtn.disabled = true;
-  loginBtn.textContent = "Logging in...";
-  try {
-    await signInWithEmailAndPassword(auth, document.getElementById("emailInput").value.trim(), document.getElementById("passwordInput").value);
-    loginForm.reset();
-  } catch (_) {
-    loginError.textContent = "Invalid email or password.";
-    loginError.classList.remove("hidden");
-  } finally {
-    loginBtn.disabled = false;
-    loginBtn.textContent = "Log in";
-  }
-});
-
-window.logoutUser = async function () {
-  await signOut(auth);
-};
-</script>
-</body>
-</html>
+  return 
